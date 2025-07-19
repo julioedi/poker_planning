@@ -1,0 +1,28 @@
+@import 'variables';
+
+// Table styles
+.table {
+  @apply w-full;
+  
+  th {
+    @apply px-4 py-3 text-left text-sm font-medium;
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    border-bottom: 1px solid var(--table-border);
+  }
+  
+  td {
+    @apply px-4 py-3 text-sm;
+    border-bottom: 1px solid var(--table-border);
+  }
+  
+  tr {
+    &:nth-child(even) {
+      background-color: var(--table-stripe);
+    }
+    
+    &:hover {
+      background-color: var(--accent);
+    }
+  }
+} 

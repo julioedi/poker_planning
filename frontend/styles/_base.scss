@@ -1,0 +1,25 @@
+@import 'variables';
+
+// Base styles
+html {
+  font-family: $font-family;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color $transition-duration ease, color $transition-duration ease;
+}
+
+* {
+  border-color: var(--border);
+}
+
+// Global input placeholder styles
+input::placeholder {
+  color: var(--muted-foreground);
+}
+
+textarea::placeholder {
+  color: var(--muted-foreground);
+} 

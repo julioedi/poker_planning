@@ -1,0 +1,31 @@
+@import 'variables';
+
+// Card components
+.card {
+  @apply rounded-lg border shadow-sm;
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--card-foreground);
+}
+
+.card-header {
+  @apply flex flex-col space-y-1.5 p-6;
+}
+
+.card-title {
+  @apply text-2xl font-semibold leading-none tracking-tight;
+  color: var(--card-foreground);
+}
+
+.card-description {
+  @apply text-sm;
+  color: var(--muted-foreground);
+}
+
+.card-content {
+  @apply p-6 pt-0;
+}
+
+.card-footer {
+  @apply flex items-center p-6 pt-0;
+} 

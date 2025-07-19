@@ -125,7 +125,7 @@ export default function SettingsPage() {
   if (!user) {
     return null
   }
-
+  const skillset =  localSettings.skillset && typeof localSettings.skillset === 'string' ? localSettings.skillset : '';
   return (
     <DashboardLayout>
       <div className="mb-8">
@@ -152,7 +152,7 @@ export default function SettingsPage() {
                 </label>
                 <textarea
                   id="skillset"
-                  value={localSettings.skillset}
+                  value={skillset}
                   onChange={(e) => setLocalSettings(prev => ({ ...prev, skillset: e.target.value }))}
                   placeholder="e.g., React, Node.js, TypeScript, Agile, Scrum Master..."
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                   maxLength={500}
                 />
                                  <p className="text-xs text-gray-500 mt-1">
-                   {localSettings.skillset.length}/500 characters
+                   {skillset.length}/500 characters
                  </p>
               </div>
             </div>
