@@ -4,34 +4,36 @@ import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { useSettings } from '@/hooks/useSettings'
+import { t } from '@/lib/i18n'
 import { Settings, Palette, Globe, Clock, Bell, Code, Save } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface UserSettings {
   skillset: string
   color_scheme: 'light' | 'dark' | 'auto'
-  language: 'en' | 'es' | 'fr' | 'de'
+  language: 'en' | 'es' | 'fr' | 'de' | 'ja'
   timezone: string
   notifications: 'all' | 'important' | 'none'
 }
 
 const colorSchemes = [
-  { value: 'light', label: 'Light', icon: '☀️' },
-  { value: 'dark', label: 'Dark', icon: '🌙' },
-  { value: 'auto', label: 'Auto', icon: '🔄' }
+  { value: 'light', label: 'light', icon: '☀️' },
+  { value: 'dark', label: 'dark', icon: '🌙' },
+  { value: 'auto', label: 'auto', icon: '🔄' }
 ]
 
 const languages = [
   { value: 'en', label: 'English', flag: '🇺🇸' },
   { value: 'es', label: 'Español', flag: '🇪🇸' },
   { value: 'fr', label: 'Français', flag: '🇫🇷' },
-  { value: 'de', label: 'Deutsch', flag: '🇩🇪' }
+  { value: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { value: 'ja', label: '日本語', flag: '🇯🇵' }
 ]
 
 const notificationOptions = [
-  { value: 'all', label: 'All notifications', description: 'Receive all notifications' },
-  { value: 'important', label: 'Important only', description: 'Only important notifications' },
-  { value: 'none', label: 'No notifications', description: 'Disable all notifications' }
+  { value: 'all', label: 'allNotifications', description: 'allNotificationsDesc' },
+  { value: 'important', label: 'importantOnly', description: 'importantOnlyDesc' },
+  { value: 'none', label: 'noNotifications', description: 'noNotificationsDesc' }
 ]
 
 const timezones = [
@@ -66,9 +68,9 @@ export default function SettingsPage() {
       const result = await updateSettings(localSettings)
       
       if (result.success) {
-        toast.success('Settings updated successfully')
+        toast.success(t('settingsUpdated', settings.language))
       } else {
-        toast.error(result.error || 'Failed to update settings')
+        toast.error(result.error || t('failedToUpdateSettings', settings.language))
       }
     } catch (error: any) {
       toast.error(error.message)
@@ -129,9 +131,9 @@ export default function SettingsPage() {
   return (
     <DashboardLayout>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('settings', settings.language)}</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Configure your account preferences and application settings
+          {t('configurePreferences', settings.language)}
         </p>
       </div>
 
@@ -141,27 +143,27 @@ export default function SettingsPage() {
           <div className="card-header">
             <div className="flex items-center">
               <Code className="h-5 w-5 mr-2 text-primary-600" />
-              <h3 className="card-title">Skillset</h3>
+              <h3 className="card-title">{t('skillset', settings.language)}</h3>
             </div>
           </div>
           <div className="card-content">
             <div className="space-y-4">
               <div>
                 <label htmlFor="skillset" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Your Skills & Expertise
+                  {t('yourSkillsExpertise', settings.language)}
                 </label>
                 <textarea
                   id="skillset"
                   value={skillset}
                   onChange={(e) => setLocalSettings(prev => ({ ...prev, skillset: e.target.value }))}
-                  placeholder="e.g., React, Node.js, TypeScript, Agile, Scrum Master..."
+                  placeholder={t('skillsetPlaceholder', settings.language)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
                   rows={4}
                   maxLength={500}
                 />
-                                 <p className="text-xs text-gray-500 mt-1">
-                   {skillset.length}/500 characters
-                 </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {skillset.length}/500 characters
+                </p>
               </div>
             </div>
           </div>
@@ -172,23 +174,24 @@ export default function SettingsPage() {
           <div className="card-header">
             <div className="flex items-center">
               <Palette className="h-5 w-5 mr-2 text-primary-600" />
-              <h3 className="card-title">Appearance</h3>
+              <h3 className="card-title">{t('appearance', settings.language)}</h3>
             </div>
           </div>
           <div className="card-content">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Color Scheme
+                  {t('colorScheme', settings.language)}
                 </label>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {colorSchemes.map((scheme) => (
                     <button
                       key={scheme.value}
                       type="button"
-                      onClick={() => previewColorScheme(scheme.value as 'light' | 'dark' | 'auto')}
-                      // onMouseEnter={() => previewColorScheme(scheme.value as 'light' | 'dark' | 'auto')}
-                      // onMouseLeave={resetColorScheme}
+                      onClick={() => {
+                        handleColorSchemeChange(scheme.value as 'light' | 'dark' | 'auto')
+                        previewColorScheme(scheme.value as 'light' | 'dark' | 'auto')
+                      }}
                       className={`p-4 border rounded-lg text-center transition-colors ${
                         localSettings.color_scheme === scheme.value
                           ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
@@ -202,7 +205,7 @@ export default function SettingsPage() {
                       }}
                     >
                       <div className="text-2xl mb-2">{scheme.icon}</div>
-                      <div className="font-medium">{scheme.label}</div>
+                      <div className="font-medium">{t(scheme.label as any, settings.language)}</div>
                     </button>
                   ))}
                 </div>
@@ -216,19 +219,19 @@ export default function SettingsPage() {
           <div className="card-header">
             <div className="flex items-center">
               <Globe className="h-5 w-5 mr-2 text-primary-600" />
-              <h3 className="card-title">Language & Region</h3>
+              <h3 className="card-title">{t('languageRegion', settings.language)}</h3>
             </div>
           </div>
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="language" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Language
+                  {t('language', settings.language)}
                 </label>
                 <select
                   id="language"
                   value={localSettings.language}
-                  onChange={(e) => setLocalSettings(prev => ({ ...prev, language: e.target.value as 'en' | 'es' | 'fr' | 'de' }))}
+                  onChange={(e) => setLocalSettings(prev => ({ ...prev, language: e.target.value as 'en' | 'es' | 'fr' | 'de' | 'ja' }))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
                 >
                   {languages.map((lang) => (
@@ -241,7 +244,7 @@ export default function SettingsPage() {
               
               <div>
                 <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Timezone
+                  {t('timezone', settings.language)}
                 </label>
                 <select
                   id="timezone"
@@ -265,7 +268,7 @@ export default function SettingsPage() {
           <div className="card-header">
             <div className="flex items-center">
               <Bell className="h-5 w-5 mr-2 text-primary-600" />
-              <h3 className="card-title">Notifications</h3>
+              <h3 className="card-title">{t('notificationSettings', settings.language)}</h3>
             </div>
           </div>
           <div className="card-content">
@@ -276,16 +279,16 @@ export default function SettingsPage() {
                     type="radio"
                     name="notifications"
                     value={option.value}
-                                         checked={localSettings.notifications === option.value}
-                     onChange={(e) => setLocalSettings(prev => ({ ...prev, notifications: e.target.value as 'all' | 'important' | 'none' }))}
+                    checked={localSettings.notifications === option.value}
+                    onChange={(e) => setLocalSettings(prev => ({ ...prev, notifications: e.target.value as 'all' | 'important' | 'none' }))}
                     className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {option.label}
+                      {t(option.label as any, settings.language)}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {option.description}
+                      {t(option.description as any, settings.language)}
                     </div>
                   </div>
                 </label>
@@ -306,7 +309,7 @@ export default function SettingsPage() {
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}
-            {loading ? 'Saving...' : 'Save Settings'}
+            {loading ? t('saving', settings.language) : t('saveSettings', settings.language)}
           </button>
         </div>
       </form>

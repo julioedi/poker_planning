@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
+import { useAuth } from '@/hooks/useAuth'
+import { useSettings } from '@/hooks/useSettings'
+import { t } from '@/lib/i18n'
 import { 
   BarChart3, 
   Plus, 
@@ -48,6 +51,8 @@ interface Pagination {
 }
 
 export default function SessionsPage() {
+  const { user } = useAuth()
+  const { settings } = useSettings()
   const [sessions, setSessions] = useState<PlanningSession[]>([])
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -93,7 +98,7 @@ export default function SessionsPage() {
       setPagination(data.pagination)
     } catch (error) {
       console.error('Error fetching sessions:', error)
-      toast.error('Failed to load sessions')
+      toast.error(t('failedToLoadSessions', settings.language))
     } finally {
       setLoading(false)
     }
@@ -129,10 +134,10 @@ export default function SessionsPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to start session')
+        throw new Error(error.error || t('failedToStartSession', settings.language))
       }
 
-      toast.success('Session started successfully')
+      toast.success(t('sessionStarted', settings.language))
       fetchSessions()
     } catch (error: any) {
       toast.error(error.message)
@@ -151,10 +156,10 @@ export default function SessionsPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to end session')
+        throw new Error(error.error || t('failedToEndSession', settings.language))
       }
 
-      toast.success('Session ended successfully')
+      toast.success(t('sessionEnded', settings.language))
       fetchSessions()
     } catch (error: any) {
       toast.error(error.message)
@@ -163,31 +168,41 @@ export default function SessionsPage() {
 
   const copyRoomCode = (roomCode: string) => {
     navigator.clipboard.writeText(roomCode)
-    toast.success('Room code copied to clipboard')
+    toast.success(t('roomCodeCopied', settings.language))
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'draft':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
       case 'scheduled':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
       case 'active':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
       case 'completed':
-        return 'bg-purple-100 text-purple-800'
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     }
   }
 
   const getRoleColor = (role: string) => {
-    return role === 'creator' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'
+    return role === 'creator' 
+      ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' 
+      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+  }
+
+  const getStatusLabel = (status: string) => {
+    return t(`sessionStatuses.${status}` as any, settings.language) || status
+  }
+
+  const getRoleLabel = (role: string) => {
+    return t(`userRoles.${role}` as any, settings.language) || role
   }
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'Not set'
-    return new Date(dateString).toLocaleDateString('en-US', {
+    if (!dateString) return t('notSet', settings.language)
+    return new Date(dateString).toLocaleDateString(settings.language, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -196,14 +211,18 @@ export default function SessionsPage() {
     })
   }
 
+  if (!user) {
+    return null
+  }
+
   return (
     <DashboardLayout>
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Sessions</h1>
-            <p className="text-gray-600 mt-2">
-              View and manage your planning sessions
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('mySessions', settings.language)}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              {t('viewAndManageSessions', settings.language)}
             </p>
           </div>
           <Link
@@ -211,23 +230,24 @@ export default function SessionsPage() {
             className="btn-primary btn-md flex items-center"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Create Session
+            {t('createSession', settings.language)}
           </Link>
         </div>
       </div>
 
       {/* Filters */}
       <div className="card mb-6">
-        <div className="card-content">
+        <div className="card-content" style={{ paddingTop: '1.5rem' }}>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"/>
               <input
                 type="text"
-                placeholder="Search sessions..."
+                placeholder={t('searchSessions', settings.language)}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="input pl-10"
+                className="input"
+                style={{ paddingLeft: '3rem' }}
               />
             </div>
             <select
@@ -235,18 +255,18 @@ export default function SessionsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="input"
             >
-              <option value="">All Status</option>
-              <option value="draft">Draft</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
+              <option value="">{t('allStatus', settings.language)}</option>
+              <option value="draft">{t('sessionStatuses.draft', settings.language)}</option>
+              <option value="scheduled">{t('sessionStatuses.scheduled', settings.language)}</option>
+              <option value="active">{t('sessionStatuses.active', settings.language)}</option>
+              <option value="completed">{t('sessionStatuses.completed', settings.language)}</option>
             </select>
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               className="input"
             >
-              <option value="">All Projects</option>
+              <option value="">{t('allProjects', settings.language)}</option>
               {projects.map((project) => (
                 <option key={project.id} value={project.id}>
                   {project.name}
@@ -262,7 +282,7 @@ export default function SessionsPage() {
               className="btn-outline btn-md flex items-center justify-center"
             >
               <Filter className="mr-2 h-4 w-4" />
-              Clear
+              {t('clear', settings.language)}
             </button>
           </div>
         </div>
@@ -271,21 +291,23 @@ export default function SessionsPage() {
       {/* Sessions Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pfrimary-600"></div>
         </div>
       ) : sessions.length === 0 ? (
         <div className="card">
           <div className="card-content text-center py-12">
             <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No sessions found</h3>
-            <p className="text-gray-500 mb-6">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              {t('noSessionsFound', settings.language)}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               {search || statusFilter || projectFilter 
-                ? 'Try adjusting your filters to see more results.'
-                : 'You haven\'t created or joined any planning sessions yet.'
+                ? t('tryAdjustingFilters', settings.language)
+                : t('noSessionsYet', settings.language)
               }
             </p>
             <Link href="/dashboard/create" className="btn-primary btn-md">
-              Create Your First Session
+              {t('createFirstSession', settings.language)}
             </Link>
           </div>
         </div>
@@ -293,55 +315,57 @@ export default function SessionsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sessions.map((session) => (
             <div key={session.id} className="card hover:shadow-md transition-shadow">
-              <div className="card-content">
+              <div className="card-content pt-4">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
                       {session.title}
                     </h3>
-                    <p className="text-sm text-gray-600">{session.project_name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{session.project_name}</p>
                   </div>
                   <div className="flex items-center space-x-2 ml-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
-                      {session.status}
+                      {getStatusLabel(session.status)}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(session.user_role)}`}>
-                      {session.user_role}
+                      {getRoleLabel(session.user_role)}
                     </span>
                   </div>
                 </div>
 
                 {/* Session Details */}
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <Calendar className="h-4 w-4 mr-2" />
                     <span>{formatDate(session.scheduled_at)}</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <Users className="h-4 w-4 mr-2" />
-                    <span>{session.participant_count} participants</span>
+                    <span>{session.participant_count} {t('participants', settings.language)}</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <BarChart3 className="h-4 w-4 mr-2" />
-                    <span>{session.topic_count} topics</span>
+                    <span>{session.topic_count} {t('topics', settings.language)}</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <Clock className="h-4 w-4 mr-2" />
-                    <span>Created {formatDate(session.created_at)}</span>
+                    <span>{t('created', settings.language)} {formatDate(session.created_at)}</span>
                   </div>
                 </div>
 
                 {/* Room Code */}
-                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-medium text-gray-700 mb-1">Room Code</p>
-                      <p className="text-sm font-mono text-gray-900">{session.room_code}</p>
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {t('roomCode', settings.language)}
+                      </p>
+                      <p className="text-sm font-mono text-gray-900 dark:text-white">{session.room_code}</p>
                     </div>
                     <button
                       onClick={() => copyRoomCode(session.room_code)}
-                      className="p-1 text-gray-400 hover:text-gray-600"
+                      className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     >
                       <Copy className="h-4 w-4" />
                     </button>
@@ -357,7 +381,7 @@ export default function SessionsPage() {
                         className="btn-primary btn-sm flex items-center flex-1"
                       >
                         <Play className="mr-1 h-3 w-3" />
-                        Start
+                        {t('start', settings.language)}
                       </button>
                       <Link
                         href={`/dashboard/sessions/${session.id}/edit`}
@@ -375,14 +399,14 @@ export default function SessionsPage() {
                         className="btn-primary btn-sm flex items-center flex-1"
                       >
                         <Eye className="mr-1 h-3 w-3" />
-                        Join
+                        {t('join', settings.language)}
                       </Link>
                       <button
                         onClick={() => handleEndSession(session.id)}
                         className="btn-outline btn-sm flex items-center"
                       >
                         <Square className="mr-1 h-3 w-3" />
-                        End
+                        {t('end', settings.language)}
                       </button>
                     </>
                   )}
@@ -393,7 +417,7 @@ export default function SessionsPage() {
                       className="btn-primary btn-sm flex items-center w-full"
                     >
                       <Eye className="mr-1 h-3 w-3" />
-                      Join
+                      {t('join', settings.language)}
                     </Link>
                   )}
 
@@ -403,7 +427,7 @@ export default function SessionsPage() {
                       className="btn-outline btn-sm flex items-center w-full"
                     >
                       <Eye className="mr-1 h-3 w-3" />
-                      View Results
+                      {t('viewResults', settings.language)}
                     </Link>
                   )}
 
@@ -413,7 +437,7 @@ export default function SessionsPage() {
                       className="btn-primary btn-sm flex items-center w-full"
                     >
                       <Eye className="mr-1 h-3 w-3" />
-                      Join Session
+                      {t('joinSession', settings.language)}
                     </Link>
                   )}
                 </div>
@@ -426,8 +450,12 @@ export default function SessionsPage() {
       {/* Pagination */}
       {pagination.pages > 1 && (
         <div className="flex items-center justify-between mt-8">
-          <div className="text-sm text-gray-600">
-            Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} sessions
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {t('showingSessions', settings.language, {
+              from: ((pagination.page - 1) * pagination.limit) + 1,
+              to: Math.min(pagination.page * pagination.limit, pagination.total),
+              total: pagination.total
+            })}
           </div>
           <div className="flex space-x-2">
             <button
@@ -435,14 +463,14 @@ export default function SessionsPage() {
               disabled={pagination.page === 1}
               className="btn-outline btn-sm disabled:opacity-50"
             >
-              Previous
+              {t('previous', settings.language)}
             </button>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
               disabled={pagination.page === pagination.pages}
               className="btn-outline btn-sm disabled:opacity-50"
             >
-              Next
+              {t('next', settings.language)}
             </button>
           </div>
         </div>

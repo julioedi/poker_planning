@@ -35,10 +35,10 @@ router.get('/', authenticateToken, async (req, res) => {
 // Update user settings
 router.put('/', authenticateToken, [
   body('skillset').optional().isLength({ max: 500 }),
-  body('color_scheme').optional().isIn(['light', 'dark']),
-  body('language').optional().isLength({ max: 10 }),
+  body('color_scheme').optional().isIn(['light', 'dark', 'auto']),
+  body('language').optional().isIn(['en', 'es', 'fr', 'de', 'ja']),
   body('timezone').optional().isLength({ max: 50 }),
-  body('notifications').optional().isBoolean()
+  body('notifications').optional().isIn(['all', 'important', 'none'])
 ], async (req, res) => {
   try {
     // Check for validation errors

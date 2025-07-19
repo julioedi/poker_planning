@@ -1,0 +1,405 @@
+@use '../../styles/card.defaults' as *;
+// Dashboard Layout
+.dashboardContainer {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  
+  &.dark {
+    background-color: #111827;
+  }
+}
+
+.dashboardHeader {
+  margin-bottom: 2rem;
+}
+
+.dashboardTitle {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  color: #111827;
+  
+  &.dark {
+    color: #ffffff;
+  }
+}
+
+.dashboardSubtitle {
+  color: #6b7280;
+  margin-top: 0.5rem;
+  
+  &.dark {
+    color: #9ca3af;
+  }
+}
+
+// Stats Grid
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+// Main Content Grid
+.mainContentGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.activitySection {
+  @media (min-width: 1024px) {
+    grid-column: span 2;
+  }
+}
+
+.actionsSection {
+  @media (min-width: 1024px) {
+    grid-column: span 1;
+  }
+}
+
+// Card Components
+.card {
+  @include cardDefaults;
+}
+
+.cardHeader {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  
+}
+
+.cardTitleIcon {
+  margin-right: 0.5rem;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+// Activity Feed
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.activityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.activityDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-top: 0.5rem;
+}
+
+.activityContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.activityTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.activityTime {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.activityIcon {
+  // color: #9ca3af;
+}
+
+// Loading States
+.loadingSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeletonItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.skeletonDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #d1d5db;
+  border-radius: 50%;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  &.dark {
+    background-color: #4b5563;
+  }
+}
+
+.skeletonContent {
+  flex: 1;
+}
+
+.skeletonLine {
+  height: 1rem;
+  background-color: #e5e7eb;
+  border-radius: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  margin-bottom: 0.25rem;
+  
+  &.dark {
+    background-color: #374151;
+  }
+}
+
+.skeletonTime {
+  height: 0.75rem;
+  background-color: #e5e7eb;
+  border-radius: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  width: 5rem;
+  
+  &.dark {
+    background-color: #374151;
+  }
+}
+
+// Empty States
+.emptyState {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.emptyStateIcon {
+  height: 3rem;
+  width: 3rem;
+  color: #9ca3af;
+  margin: 0 auto 1rem;
+}
+
+.emptyStateTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  
+  &.dark {
+    color: #ffffff;
+  }
+}
+
+.emptyStateDescription {
+  font-size: 0.875rem;
+  color: #6b7280;
+  
+  &.dark {
+    color: #9ca3af;
+  }
+}
+
+// Quick Actions
+.actionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #2563eb;
+  }
+  
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+}
+
+.actionButtonOutline {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  // color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+    color: var(--card);
+  }
+  
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  &.dark {
+    color: var(--card);
+    border-color: #4b5563;
+    
+    &:hover {
+      background-color: #374151;
+      border-color: #6b7280;
+    }
+  }
+}
+
+.actionButtonIcon {
+  margin-right: 0.5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+// Empty Dashboard State
+.emptyDashboard {
+  margin-top: 2rem;
+}
+
+.emptyDashboardContent {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.emptyDashboardIcon {
+  height: 3rem;
+  width: 3rem;
+  color: #9ca3af;
+  margin: 0 auto 1rem;
+}
+
+.emptyDashboardTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.emptyDashboardDescription {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  
+  &.dark {
+    color: #9ca3af;
+  }
+}
+
+.emptyDashboardButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #2563eb;
+  }
+  
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  .mainContentGrid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  .cardContent {
+    padding: 1rem;
+  }
+  
+  .cardHeader {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  .dashboardTitle {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .cardTitle {
+    font-size: 1rem;
+  }
+}
+
+// Animation keyframes
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+} 

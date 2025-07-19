@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
+import { useAuth } from '@/hooks/useAuth'
+import { useSettings } from '@/hooks/useSettings'
+import { t } from '@/lib/i18n'
 import { Users, Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -28,7 +31,21 @@ interface Pagination {
   pages: number
 }
 
+const roles = [
+  { value: 'user', label: 'user' },
+  { value: 'admin', label: 'admin' },
+  { value: 'product_owner', label: 'productOwner' },
+  { value: 'product_manager', label: 'productManager' }
+]
+
+const statuses = [
+  { value: 'active', label: 'active' },
+  { value: 'inactive', label: 'inactive' }
+]
+
 export default function UsersPage() {
+  const { user } = useAuth()
+  const { settings } = useSettings()
   const [users, setUsers] = useState<User[]>([])
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -82,7 +99,7 @@ export default function UsersPage() {
       setPagination(data.pagination)
     } catch (error) {
       console.error('Error fetching users:', error)
-      toast.error('Failed to load users')
+      toast.error(t('failedToLoadUsers', settings.language))
     } finally {
       setLoading(false)
     }
@@ -103,10 +120,10 @@ export default function UsersPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to create user')
+        throw new Error(error.error || t('failedToCreateUser', settings.language))
       }
 
-      toast.success('User created successfully')
+      toast.success(t('userCreatedSuccessfully', settings.language))
       setShowAddModal(false)
       setFormData({ name: '', email: '', password: '', role: 'user', status: 'active' })
       fetchUsers()
@@ -132,10 +149,10 @@ export default function UsersPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to update user')
+        throw new Error(error.error || t('failedToUpdateUser', settings.language))
       }
 
-      toast.success('User updated successfully')
+      toast.success(t('userUpdatedSuccessfully', settings.language))
       setShowEditModal(false)
       setSelectedUser(null)
       setFormData({ name: '', email: '', password: '', role: 'user', status: 'active' })
@@ -146,7 +163,7 @@ export default function UsersPage() {
   }
 
   const handleDeleteUser = async (userId: number) => {
-    if (!confirm('Are you sure you want to delete this user?')) return
+    if (!confirm(t('confirmDeleteUser', settings.language))) return
 
     try {
       const token = localStorage.getItem('token')
@@ -159,10 +176,10 @@ export default function UsersPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to delete user')
+        throw new Error(error.error || t('failedToDeleteUser', settings.language))
       }
 
-      toast.success('User deleted successfully')
+      toast.success(t('userDeletedSuccessfully', settings.language))
       fetchUsers()
     } catch (error: any) {
       toast.error(error.message)
@@ -186,14 +203,28 @@ export default function UsersPage() {
     setSelectedUser(null)
   }
 
+  const getRoleLabel = (role: string) => {
+    const roleObj = roles.find(r => r.value === role)
+    return roleObj ? t(roleObj.label as any, settings.language) : role
+  }
+
+  const getStatusLabel = (status: string) => {
+    const statusObj = statuses.find(s => s.value === status)
+    return statusObj ? t(statusObj.label as any, settings.language) : status
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
     <DashboardLayout>
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-            <p className="text-gray-600 mt-2">
-              Manage your team members and their roles
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('usersManagement', settings.language)}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              {t('manageTeamMembers', settings.language)}
             </p>
           </div>
           <button
@@ -201,7 +232,7 @@ export default function UsersPage() {
             className="btn-primary btn-md flex items-center"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add User
+            {t('addUser', settings.language)}
           </button>
         </div>
       </div>
@@ -214,7 +245,7 @@ export default function UsersPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder={t('searchUsers', settings.language)}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input pl-10"
@@ -225,20 +256,24 @@ export default function UsersPage() {
               onChange={(e) => setRoleFilter(e.target.value)}
               className="input"
             >
-              <option value="">All Roles</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="product_owner">Product Owner</option>
-              <option value="product_manager">Product Manager</option>
+              <option value="">{t('allRoles', settings.language)}</option>
+              {roles.map((role) => (
+                <option key={role.value} value={role.value}>
+                  {t(role.label as any, settings.language)}
+                </option>
+              ))}
             </select>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="input"
             >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="">{t('allStatus', settings.language)}</option>
+              {statuses.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {t(status.label as any, settings.language)}
+                </option>
+              ))}
             </select>
             <button
               onClick={() => {
@@ -248,7 +283,7 @@ export default function UsersPage() {
               }}
               className="btn-outline btn-md"
             >
-              Clear Filters
+              {t('clearFilters', settings.language)}
             </button>
           </div>
         </div>
@@ -267,17 +302,17 @@ export default function UsersPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Role</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Created</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t('name', settings.language)}</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t('email', settings.language)}</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t('role', settings.language)}</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t('status', settings.language)}</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t('created', settings.language)}</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">{t('actions', settings.language)}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((user) => (
-                      <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800">
                         <td className="py-3 px-4">
                           <div className="flex items-center">
                             <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center mr-3 overflow-hidden">
@@ -297,41 +332,43 @@ export default function UsersPage() {
                                 {user.name.charAt(0).toUpperCase()}
                               </span>
                             </div>
-                            <span className="font-medium text-gray-900">{user.name}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">{user.name}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{user.email}</td>
+                        <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{user.email}</td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                            user.role === 'product_owner' ? 'bg-blue-100 text-blue-800' :
-                            user.role === 'product_manager' ? 'bg-purple-100 text-purple-800' :
-                            'bg-gray-100 text-gray-800'
+                            user.role === 'admin' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
+                            user.role === 'product_owner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' :
+                            user.role === 'product_manager' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
+                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                           }`}>
-                            {user.role.replace('_', ' ').toUpperCase()}
+                            {getRoleLabel(user.role)}
                           </span>
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                           }`}>
-                            {user.status}
+                            {getStatusLabel(user.status)}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-600 text-sm">
+                        <td className="py-3 px-4 text-gray-600 dark:text-gray-400 text-sm">
                           {new Date(user.created_at).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center justify-end space-x-2">
                             <button
                               onClick={() => openEditModal(user)}
-                              className="p-1 text-gray-400 hover:text-blue-600"
+                              className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                              title={t('editUser', settings.language)}
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteUser(user.id)}
-                              className="p-1 text-gray-400 hover:text-red-600"
+                              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                              title={t('deleteUser', settings.language)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -346,8 +383,12 @@ export default function UsersPage() {
               {/* Pagination */}
               {pagination.pages > 1 && (
                 <div className="flex items-center justify-between mt-6">
-                  <div className="text-sm text-gray-600">
-                    Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} users
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('showingResults', settings.language, {
+                      from: ((pagination.page - 1) * pagination.limit) + 1,
+                      to: Math.min(pagination.page * pagination.limit, pagination.total),
+                      total: pagination.total
+                    })}
                   </div>
                   <div className="flex space-x-2">
                     <button
@@ -355,14 +396,14 @@ export default function UsersPage() {
                       disabled={pagination.page === 1}
                       className="btn-outline btn-sm disabled:opacity-50"
                     >
-                      Previous
+                      {t('previous', settings.language)}
                     </button>
                     <button
                       onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                       disabled={pagination.page === pagination.pages}
                       className="btn-outline btn-sm disabled:opacity-50"
                     >
-                      Next
+                      {t('next', settings.language)}
                     </button>
                   </div>
                 </div>
@@ -375,12 +416,12 @@ export default function UsersPage() {
       {/* Add User Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add New User</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('addNewUser', settings.language)}</h3>
             <form onSubmit={handleAddUser}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('name', settings.language)}</label>
                   <input
                     type="text"
                     required
@@ -390,7 +431,7 @@ export default function UsersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('email', settings.language)}</label>
                   <input
                     type="email"
                     required
@@ -400,7 +441,7 @@ export default function UsersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('password', settings.language)}</label>
                   <input
                     type="password"
                     required
@@ -410,27 +451,31 @@ export default function UsersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('role', settings.language)}</label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                     className="input"
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                    <option value="product_owner">Product Owner</option>
-                    <option value="product_manager">Product Manager</option>
+                    {roles.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {t(role.label as any, settings.language)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('status', settings.language)}</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
                     className="input"
                   >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    {statuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {t(status.label as any, settings.language)}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -443,10 +488,10 @@ export default function UsersPage() {
                   }}
                   className="btn-outline btn-md flex-1"
                 >
-                  Cancel
+                  {t('cancel', settings.language)}
                 </button>
                 <button type="submit" className="btn-primary btn-md flex-1">
-                  Add User
+                  {t('addUser', settings.language)}
                 </button>
               </div>
             </form>
@@ -457,12 +502,12 @@ export default function UsersPage() {
       {/* Edit User Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Edit User</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('editUser', settings.language)}</h3>
             <form onSubmit={handleEditUser}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('name', settings.language)}</label>
                   <input
                     type="text"
                     required
@@ -472,7 +517,7 @@ export default function UsersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('email', settings.language)}</label>
                   <input
                     type="email"
                     required
@@ -482,27 +527,31 @@ export default function UsersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('role', settings.language)}</label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                     className="input"
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                    <option value="product_owner">Product Owner</option>
-                    <option value="product_manager">Product Manager</option>
+                    {roles.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {t(role.label as any, settings.language)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('status', settings.language)}</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
                     className="input"
                   >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    {statuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {t(status.label as any, settings.language)}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -515,10 +564,10 @@ export default function UsersPage() {
                   }}
                   className="btn-outline btn-md flex-1"
                 >
-                  Cancel
+                  {t('cancel', settings.language)}
                 </button>
                 <button type="submit" className="btn-primary btn-md flex-1">
-                  Update User
+                  {t('updateUser', settings.language)}
                 </button>
               </div>
             </form>

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
+import { useSettings } from '@/hooks/useSettings'
+import { t } from '@/lib/i18n'
 import { 
   Menu, 
   Search, 
@@ -18,6 +20,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth()
+  const { settings } = useSettings()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
 
@@ -29,23 +32,23 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const notifications = [
     {
       id: 1,
-      title: 'New planning session created',
-      message: 'Team Alpha has started a new planning session',
-      time: '2 minutes ago',
+      title: t('newPlanningSessionCreated', settings.language),
+      message: t('teamAlphaStarted', settings.language),
+      time: t('minutesAgo', settings.language, { count: 2 }),
       unread: true
     },
     {
       id: 2,
-      title: 'Session reminder',
-      message: 'Your planning session starts in 30 minutes',
-      time: '1 hour ago',
+      title: t('sessionReminder', settings.language),
+      message: t('sessionStartsIn30', settings.language),
+      time: t('hoursAgo', settings.language, { count: 1 }),
       unread: true
     },
     {
       id: 3,
-      title: 'Project updated',
-      message: 'Project "E-commerce Platform" has been updated',
-      time: '3 hours ago',
+      title: t('projectUpdated', settings.language),
+      message: t('projectEcommerceUpdated', settings.language),
+      time: t('hoursAgo', settings.language, { count: 3 }),
       unread: false
     }
   ]
@@ -71,7 +74,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             </div>
             <input
               type="text"
-              placeholder="Search projects, sessions..."
+              placeholder={t('searchPlaceholder', settings.language)}
               className="header-search-input"
             />
           </div>
@@ -97,7 +100,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             {isNotificationsOpen && (
               <div className="absolute right-0 mt-2 w-80 rounded-lg shadow-lg border py-1 z-50 dropdown-menu">
                 <div className="header-dropdown-header">
-                  <h3 className="header-dropdown-title">Notifications</h3>
+                  <h3 className="header-dropdown-title">{t('notifications', settings.language)}</h3>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.length > 0 ? (
@@ -128,7 +131,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                     ))
                   ) : (
                     <div className="px-4 py-3 text-sm header-dropdown-subtitle">
-                      No notifications
+                      {t('noNotifications', settings.language)}
                     </div>
                   )}
                 </div>
@@ -179,7 +182,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <User className="header-dropdown-icon" />
-                    Profile
+                    {t('profile', settings.language)}
                   </Link>
                   <Link
                     href="/dashboard/settings"
@@ -187,14 +190,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <Settings className="header-dropdown-icon" />
-                    Settings
+                    {t('settings', settings.language)}
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="header-dropdown-item"
                   >
                     <LogOut className="header-dropdown-icon" />
-                    Sign out
+                    {t('signOut', settings.language)}
                   </button>
                 </div>
               </div>

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useSettings } from '@/hooks/useSettings'
+import { t } from '@/lib/i18n'
 import { 
   Home, 
   PlusCircle, 
@@ -21,16 +23,17 @@ interface SidebarProps {
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname()
   const { user, logout } = useAuth()
+  const { settings } = useSettings()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Create Planning', href: '/dashboard/create', icon: PlusCircle },
-    { name: 'My Sessions', href: '/dashboard/sessions', icon: BarChart3 },
-    { name: 'Projects', href: '/dashboard/projects', icon: Folder },
-    { name: 'Team', href: '/dashboard/team', icon: Users },
-    ...(user?.role === 'admin' ? [{ name: 'Users', href: '/dashboard/users', icon: Users }] : []),
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: t('dashboard' as any, settings.language), href: '/dashboard', icon: Home },
+    { name: t('createPlanning' as any, settings.language), href: '/dashboard/create', icon: PlusCircle },
+    { name: t('mySessions' as any, settings.language), href: '/dashboard/sessions', icon: BarChart3 },
+    { name: t('projects' as any, settings.language), href: '/dashboard/projects', icon: Folder },
+    { name: t('team' as any, settings.language), href: '/dashboard/team', icon: Users },
+    ...(user?.role === 'admin' ? [{ name: t('users', settings.language), href: '/dashboard/users', icon: Users }] : []),
+    { name: t('settings', settings.language), href: '/dashboard/settings', icon: Settings },
   ]
 
   const handleLogout = async () => {
@@ -45,7 +48,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           <div className="sidebar-logo">
             <span className="text-white font-bold text-sm">PP</span>
           </div>
-          <span className="sidebar-title">Poker Planning</span>
+          <span className="sidebar-title">{t('pokerPlanning', settings.language)}</span>
         </div>
         {onClose && (
           <button
@@ -119,13 +122,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 className="dropdown-item"
                 onClick={() => setIsProfileOpen(false)}
               >
-                Profile Settings
+                {t('profileSettings', settings.language)}
               </Link>
               <button
                 onClick={handleLogout}
                 className="dropdown-item w-full text-left"
               >
-                Sign out
+                {t('signOut', settings.language)}
               </button>
             </div>
           )}

@@ -1,0 +1,249 @@
+@use '../../styles/card.defaults' as *;
+
+.statsCard {
+  @include cardDefaults;
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  &.dark {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+.cardLayout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.textContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+
+  &.dark {
+    color: #9ca3af;
+  }
+}
+
+.value {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+
+.iconContainer {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+// Color variants
+.primary {
+  .value {
+    color: #3b82f6;
+  }
+
+  .iconContainer {
+    background-color: #dbeafe;
+
+    &.dark {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  .icon {
+    color: #3b82f6;
+  }
+}
+
+.green {
+  .value {
+    color: #10b981;
+  }
+
+  .iconContainer {
+    background-color: #d1fae5;
+
+    &.dark {
+      background-color: rgba(16, 185, 129, 0.2);
+    }
+  }
+
+  .icon {
+    color: #10b981;
+  }
+}
+
+.blue {
+  .value {
+    color: #3b82f6;
+  }
+
+  .iconContainer {
+    background-color: #dbeafe;
+
+    &.dark {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  .icon {
+    color: #3b82f6;
+  }
+}
+
+.purple {
+  .value {
+    color: #8b5cf6;
+  }
+
+  .iconContainer {
+    background-color: #ede9fe;
+
+    &.dark {
+      background-color: rgba(139, 92, 246, 0.2);
+    }
+  }
+
+  .icon {
+    color: #8b5cf6;
+  }
+}
+
+.red {
+  .value {
+    color: #ef4444;
+  }
+
+  .iconContainer {
+    background-color: #fee2e2;
+
+    &.dark {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+  }
+
+  .icon {
+    color: #ef4444;
+  }
+}
+
+.yellow {
+  .value {
+    color: #f59e0b;
+  }
+
+  .iconContainer {
+    background-color: #fef3c7;
+
+    &.dark {
+      background-color: rgba(245, 158, 11, 0.2);
+    }
+  }
+
+  .icon {
+    color: #f59e0b;
+  }
+}
+
+.indigo {
+  .value {
+    color: #6366f1;
+  }
+
+  .iconContainer {
+    background-color: #e0e7ff;
+
+    &.dark {
+      background-color: rgba(99, 102, 241, 0.2);
+    }
+  }
+
+  .icon {
+    color: #6366f1;
+  }
+}
+
+.pink {
+  .value {
+    color: #ec4899;
+  }
+
+  .iconContainer {
+    background-color: #fce7f3;
+
+    &.dark {
+      background-color: rgba(236, 72, 153, 0.2);
+    }
+  }
+
+  .icon {
+    color: #ec4899;
+  }
+}
+
+// Loading state
+.loading {
+  .value {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .iconContainer {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .cardContent {
+    padding: 1rem;
+  }
+
+  .iconContainer {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  .icon {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  .value {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+// Animation keyframes
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}

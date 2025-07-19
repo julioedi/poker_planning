@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from './useAuth'
+import { t, type Language } from '@/lib/i18n'
 
 interface UserSettings {
   skillset: string
   color_scheme: 'light' | 'dark' | 'auto'
-  language: 'en' | 'es' | 'fr' | 'de'
+  language: 'en' | 'es' | 'fr' | 'de' | 'ja'
   timezone: string
   notifications: 'all' | 'important' | 'none'
 }
@@ -79,7 +80,13 @@ export function useSettings() {
         setSettings(data.settings)
         
         // Update user context with new settings
-        updateUser(data.settings)
+        updateUser({
+          skillset: data.settings.skillset,
+          color_scheme: data.settings.color_scheme,
+          language: data.settings.language,
+          timezone: data.settings.timezone,
+          notifications: data.settings.notifications
+        })
         
         // Apply color scheme if it changed
         if (newSettings.color_scheme) {
@@ -118,38 +125,7 @@ export function useSettings() {
   }
 
   const getLocalizedText = (key: string) => {
-    const translations: Record<string, Record<string, string>> = {
-      en: {
-        'welcome': 'Welcome',
-        'dashboard': 'Dashboard',
-        'settings': 'Settings',
-        'profile': 'Profile',
-        'logout': 'Logout'
-      },
-      es: {
-        'welcome': 'Bienvenido',
-        'dashboard': 'Panel',
-        'settings': 'Configuración',
-        'profile': 'Perfil',
-        'logout': 'Cerrar sesión'
-      },
-      fr: {
-        'welcome': 'Bienvenue',
-        'dashboard': 'Tableau de bord',
-        'settings': 'Paramètres',
-        'profile': 'Profil',
-        'logout': 'Déconnexion'
-      },
-      de: {
-        'welcome': 'Willkommen',
-        'dashboard': 'Dashboard',
-        'settings': 'Einstellungen',
-        'profile': 'Profil',
-        'logout': 'Abmelden'
-      }
-    }
-
-    return translations[settings.language]?.[key] || translations.en[key] || key
+    return t(key as any, settings.language as Language)
   }
 
   const formatDate = (date: Date | string) => {
