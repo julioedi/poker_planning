@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
     const offset = (page - 1) * limit;
 
     let query = `
-      SELECT id, email, name, role, status, profile_picture, created_at, updated_at
+      SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at, updated_at
       FROM users
       WHERE 1=1
     `;
@@ -132,7 +132,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
 
     db.get(
-      'SELECT id, email, name, role, status, profile_picture, created_at, updated_at FROM users WHERE id = ?',
+      'SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at, updated_at FROM users WHERE id = ?',
       [id],
       (err, user) => {
         if (err) {
@@ -201,7 +201,7 @@ router.post('/', requireAdmin, [
 
             // Get the created user
             db.get(
-              'SELECT id, email, name, role, status, profile_picture, created_at FROM users WHERE id = ?',
+              'SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at FROM users WHERE id = ?',
               [this.lastID],
               (err, newUser) => {
                 if (err) {
@@ -356,6 +356,129 @@ router.post('/profile/picture', authenticateToken, upload.single('profile_pictur
   }
 });
 
+// Update user settings
+router.put('/settings', authenticateToken, [
+  body('skillset').optional().isLength({ max: 500 }),
+  body('color_scheme').optional().isIn(['light', 'dark', 'auto']),
+  body('language').optional().isIn(['en', 'es', 'fr', 'de']),
+  body('timezone').optional().isLength({ max: 50 }),
+  body('notifications').optional().isIn(['all', 'important', 'none'])
+], async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: errors.array() 
+      });
+    }
+
+    const { skillset, color_scheme, language, timezone, notifications } = req.body;
+    const userId = req.user.id;
+
+    // Build update query
+    let updateQuery = 'UPDATE users SET updated_at = CURRENT_TIMESTAMP';
+    let params = [];
+
+    if (skillset !== undefined) {
+      updateQuery += ', skillset = ?';
+      params.push(skillset);
+    }
+
+    if (color_scheme !== undefined) {
+      updateQuery += ', color_scheme = ?';
+      params.push(color_scheme);
+    }
+
+    if (language !== undefined) {
+      updateQuery += ', language = ?';
+      params.push(language);
+    }
+
+    if (timezone !== undefined) {
+      updateQuery += ', timezone = ?';
+      params.push(timezone);
+    }
+
+    if (notifications !== undefined) {
+      updateQuery += ', notifications = ?';
+      params.push(notifications);
+    }
+
+    updateQuery += ' WHERE id = ?';
+    params.push(userId);
+
+    // Update user settings
+    db.run(updateQuery, params, function(err) {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to update settings' });
+      }
+
+      // Get the updated user
+      db.get(
+        'SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at, updated_at FROM users WHERE id = ?',
+        [userId],
+        (err, updatedUser) => {
+          if (err) {
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          res.json({
+            message: 'Settings updated successfully',
+            settings: {
+              skillset: updatedUser.skillset || '',
+              color_scheme: updatedUser.color_scheme || 'light',
+              language: updatedUser.language || 'en',
+              timezone: updatedUser.timezone || 'UTC',
+              notifications: updatedUser.notifications || 'all'
+            }
+          });
+        }
+      );
+    });
+
+  } catch (error) {
+    console.error('Update settings error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user settings
+router.get('/settings', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    db.get(
+      'SELECT id, skillset, color_scheme, language, timezone, notifications FROM users WHERE id = ?',
+      [userId],
+      (err, user) => {
+        if (err) {
+          return res.status(500).json({ error: 'Database error' });
+        }
+
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({
+          settings: {
+            skillset: user.skillset || '',
+            color_scheme: user.color_scheme || 'light',
+            language: user.language || 'en',
+            timezone: user.timezone || 'UTC',
+            notifications: user.notifications || 'all'
+          }
+        });
+      }
+    );
+
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Update current user profile
 router.put('/profile', authenticateToken, [
   body('email').optional().isEmail().normalizeEmail(),
@@ -448,11 +571,11 @@ router.put('/profile', authenticateToken, [
             return res.status(500).json({ error: 'Failed to update profile' });
           }
 
-          // Get the updated user
-          db.get(
-            'SELECT id, email, name, role, status, profile_picture, created_at, updated_at FROM users WHERE id = ?',
-            [userId],
-            (err, updatedUser) => {
+                  // Get the updated user
+        db.get(
+          'SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at, updated_at FROM users WHERE id = ?',
+          [userId],
+          (err, updatedUser) => {
               if (err) {
                 return res.status(500).json({ error: 'Database error' });
               }

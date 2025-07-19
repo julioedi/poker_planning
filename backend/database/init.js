@@ -232,7 +232,7 @@ const dbUtils = {
   // Get user by ID
   getUserById: (id) => {
     return new Promise((resolve, reject) => {
-      db.get('SELECT id, email, name, role, status, profile_picture, created_at FROM users WHERE id = ?', [id], (err, row) => {
+      db.get('SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at FROM users WHERE id = ?', [id], (err, row) => {
         if (err) reject(err);
         else resolve(row);
       });

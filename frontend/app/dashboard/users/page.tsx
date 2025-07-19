@@ -12,6 +12,11 @@ interface User {
   role: string
   status: string
   profile_picture?: string
+  skillset?: string
+  color_scheme?: string
+  language?: string
+  timezone?: string
+  notifications?: string
   created_at: string
   updated_at?: string
 }
