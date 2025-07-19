@@ -38,19 +38,20 @@ export default function Sidebar({ onClose }: SidebarProps) {
   }
 
   return (
-    <div className="flex h-full flex-col bg-white shadow-lg">
+    <div className="flex h-full flex-col shadow-lg" style={{ backgroundColor: 'var(--sidebar-bg)' }}>
       {/* Header */}
-      <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200">
+      <div className="flex h-16 items-center justify-between px-6 border-b" style={{ borderColor: 'var(--sidebar-border)' }}>
         <div className="flex items-center">
           <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">PP</span>
           </div>
-          <span className="ml-3 text-lg font-semibold text-gray-900">Poker Planning</span>
+          <span className="ml-3 text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Poker Planning</span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+            style={{ color: 'var(--muted-foreground)' }}
           >
             <X className="h-6 w-6" />
           </button>
@@ -66,9 +67,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                isActive
-                  ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                isActive ? 'sidebar-link-active' : 'sidebar-link-inactive'
               }`}
               onClick={onClose}
             >
@@ -84,11 +83,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* User Profile */}
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t p-4" style={{ borderColor: 'var(--sidebar-border)' }}>
         <div className="relative">
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex w-full items-center space-x-3 rounded-lg p-2 text-sm hover:bg-gray-50 focus:outline-none"
+            className="flex w-full items-center space-x-3 rounded-lg p-2 text-sm focus:outline-none"
+            style={{ color: 'var(--foreground)' }}
           >
             <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center overflow-hidden">
                              {user?.profile_picture ? (
@@ -108,24 +108,24 @@ export default function Sidebar({ onClose }: SidebarProps) {
               </span>
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{user?.name}</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{user?.email}</p>
             </div>
           </button>
 
           {/* Profile Dropdown */}
           {isProfileOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
+            <div className="absolute bottom-full left-0 right-0 mb-2 rounded-lg shadow-lg border py-1 dropdown-menu">
               <Link
                 href="/dashboard/profile"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="dropdown-item"
                 onClick={() => setIsProfileOpen(false)}
               >
                 Profile Settings
               </Link>
               <button
                 onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="dropdown-item w-full text-left"
               >
                 Sign out
               </button>

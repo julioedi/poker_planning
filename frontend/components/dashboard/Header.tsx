@@ -53,12 +53,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const unreadCount = notifications.filter(n => n.unread).length
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="shadow-sm border-b" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Mobile menu button */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+          className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+          style={{ color: 'var(--muted-foreground)' }}
         >
           <Menu className="h-6 w-6" />
         </button>
@@ -67,12 +68,17 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="flex-1 max-w-lg mx-4 lg:mx-8">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5" style={{ color: 'var(--muted-foreground)' }} />
             </div>
             <input
               type="text"
               placeholder="Search projects, sessions..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border rounded-md leading-5 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              style={{ 
+                backgroundColor: 'var(--input)', 
+                borderColor: 'var(--border)', 
+                color: 'var(--foreground)' 
+              }}
             />
           </div>
         </div>
@@ -83,7 +89,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <div className="relative">
             <button
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 relative"
+              className="p-2 rounded-md hover:bg-gray-100 relative"
+              style={{ color: 'var(--muted-foreground)' }}
             >
               <Bell className="h-6 w-6" />
               {unreadCount > 0 && (
@@ -95,28 +102,28 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
             {/* Notifications dropdown */}
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                <div className="px-4 py-2 border-b border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+              <div className="absolute right-0 mt-2 w-80 rounded-lg shadow-lg border py-1 z-50 dropdown-menu">
+                <div className="px-4 py-2 border-b" style={{ borderColor: 'var(--border)' }}>
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Notifications</h3>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.length > 0 ? (
                     notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${
-                          notification.unread ? 'bg-blue-50' : ''
+                        className={`px-4 py-3 cursor-pointer dropdown-item ${
+                          notification.unread ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                         }`}
                       >
                         <div className="flex items-start">
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
                               {notification.title}
                             </p>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>
                               {notification.message}
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>
                               {notification.time}
                             </p>
                           </div>
@@ -127,7 +134,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                       </div>
                     ))
                   ) : (
-                    <div className="px-4 py-3 text-sm text-gray-500">
+                    <div className="px-4 py-3 text-sm" style={{ color: 'var(--muted-foreground)' }}>
                       No notifications
                     </div>
                   )}
@@ -160,22 +167,22 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 </span>
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{user?.name}</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{user?.email}</p>
               </div>
             </button>
 
             {/* Profile dropdown */}
             {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                <div className="px-4 py-2 border-b border-gray-200">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+              <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg border py-1 z-50 dropdown-menu">
+                <div className="px-4 py-2 border-b" style={{ borderColor: 'var(--border)' }}>
+                  <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{user?.name}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{user?.email}</p>
                 </div>
                 <div className="py-1">
                   <Link
                     href="/dashboard/profile"
-                    className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center px-4 py-2 text-sm dropdown-item"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <User className="mr-3 h-4 w-4" />
@@ -183,7 +190,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   </Link>
                   <Link
                     href="/dashboard/settings"
-                    className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center px-4 py-2 text-sm dropdown-item"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <Settings className="mr-3 h-4 w-4" />
@@ -191,7 +198,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center px-4 py-2 text-sm dropdown-item"
                   >
                     <LogOut className="mr-3 h-4 w-4" />
                     Sign out

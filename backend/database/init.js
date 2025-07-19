@@ -171,7 +171,7 @@ async function initializeDatabase() {
 
 // Create default admin user
 async function createDefaultUser() {
-  const defaultUserId = process.env.DEFAULT_USER_ID || 0;
+  const defaultUserId = process.env.DEFAULT_USER_ID || 1;
   const defaultEmail = process.env.DEFAULT_USER_EMAIL || 'admin@pokerplanning.com';
   const defaultName = process.env.DEFAULT_USER_NAME || 'Admin User';
   const defaultPassword = process.env.DEFAULT_USER_PASSWORD || 'admin123';
@@ -232,7 +232,7 @@ const dbUtils = {
   // Get user by ID
   getUserById: (id) => {
     return new Promise((resolve, reject) => {
-      db.get('SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at FROM users WHERE id = ?', [id], (err, row) => {
+      db.get('SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at, updated_at FROM users WHERE id = ?', [id], (err, row) => {
         if (err) reject(err);
         else resolve(row);
       });
@@ -289,6 +289,55 @@ const dbUtils = {
         });
       };
       generateCode();
+    });
+  },
+
+  // Clean up orphaned profile pictures
+  cleanupOrphanedProfilePictures: () => {
+    return new Promise((resolve, reject) => {
+      const fs = require('fs');
+      const uploadsDir = path.join(__dirname, '../uploads');
+      
+      // Get all profile pictures in database
+      db.all('SELECT profile_picture FROM users WHERE profile_picture IS NOT NULL', (err, users) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const dbFiles = new Set(users.map(user => user.profile_picture).filter(Boolean));
+        
+        // Read all files in uploads directory
+        fs.readdir(uploadsDir, (err, files) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          // Filter profile picture files (files starting with 'profile-')
+          const profileFiles = files.filter(file => file.startsWith('profile-'));
+          
+          // Find orphaned files
+          const orphanedFiles = profileFiles.filter(file => !dbFiles.has(file));
+          
+          // Delete orphaned files
+          let deletedCount = 0;
+          orphanedFiles.forEach(file => {
+            const filePath = path.join(uploadsDir, file);
+            fs.unlink(filePath, (err) => {
+              if (err) {
+                console.error(`Error deleting orphaned file ${file}:`, err);
+              } else {
+                console.log(`Deleted orphaned profile picture: ${file}`);
+                deletedCount++;
+              }
+            });
+          });
+
+          console.log(`Cleanup completed. Deleted ${deletedCount} orphaned profile pictures.`);
+          resolve(deletedCount);
+        });
+      });
     });
   }
 };

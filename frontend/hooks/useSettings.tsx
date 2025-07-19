@@ -12,7 +12,7 @@ interface UserSettings {
 }
 
 export function useSettings() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [settings, setSettings] = useState<UserSettings>({
     skillset: '',
     color_scheme: 'light',
@@ -77,6 +77,9 @@ export function useSettings() {
         console.log('Settings updated:', data.settings)
         // Update settings with the response data
         setSettings(data.settings)
+        
+        // Update user context with new settings
+        updateUser(data.settings)
         
         // Apply color scheme if it changed
         if (newSettings.color_scheme) {

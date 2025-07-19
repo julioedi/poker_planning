@@ -12,7 +12,7 @@ dotenv.config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const projectRoutes = require('./routes/projects');
-const pokerPlanningRoutes = require('./routes/pokerPlanning');
+const pokerPlanningRoutes = require('./routes/poker-planning');
 
 // Import middleware
 const { authenticateToken } = require('./middleware/auth');

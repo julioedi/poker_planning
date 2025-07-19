@@ -186,9 +186,9 @@ export default function SettingsPage() {
                     <button
                       key={scheme.value}
                       type="button"
-                      onClick={() => handleColorSchemeChange(scheme.value as 'light' | 'dark' | 'auto')}
-                      onMouseEnter={() => previewColorScheme(scheme.value as 'light' | 'dark' | 'auto')}
-                      onMouseLeave={resetColorScheme}
+                      onClick={() => previewColorScheme(scheme.value as 'light' | 'dark' | 'auto')}
+                      // onMouseEnter={() => previewColorScheme(scheme.value as 'light' | 'dark' | 'auto')}
+                      // onMouseLeave={resetColorScheme}
                       className={`p-4 border rounded-lg text-center transition-colors ${
                         localSettings.color_scheme === scheme.value
                           ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'

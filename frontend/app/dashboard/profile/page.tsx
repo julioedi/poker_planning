@@ -15,7 +15,7 @@ interface ProfileFormData {
 }
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [uploadingPicture, setUploadingPicture] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -83,8 +83,8 @@ export default function ProfilePage() {
         const result = await response.json()
         toast.success('Profile picture updated successfully')
         
-        // Refresh the page to show new picture
-        window.location.reload()
+        // Update user context with new profile picture
+        updateUser({ profile_picture: result.filename })
       } catch (error: any) {
         toast.error(error.message)
       } finally {
@@ -154,10 +154,9 @@ export default function ProfilePage() {
         confirmPassword: ''
       }))
 
-      // Update local user data if needed
+      // Update user context with new data
       if (result.user) {
-        // You might want to update the user context here
-        window.location.reload() // Simple refresh for now
+        updateUser(result.user)
       }
     } catch (error: any) {
       toast.error(error.message)
