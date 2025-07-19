@@ -1,0 +1,22 @@
+{
+  "name": "poker-planning-app",
+  "version": "1.0.0",
+  "description": "A comprehensive poker planning webapp with real-time collaboration",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "setup": "node scripts/setup.js",
+    "setup:quick": "npm run install:all && cd backend && npm run setup-db"
+  },
+  "keywords": ["poker-planning", "websockets", "nextjs", "express", "sqlite3"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
