@@ -1,14 +1,12 @@
-@use '../../styles/card.defaults' as *;
-
 .statsCard {
-  @include cardDefaults;
+  background-color: var(--surface-primary);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  
   &:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-
-  &.dark {
-    background-color: #1f2937;
-    border-color: #374151;
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -29,12 +27,8 @@
 .title {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-tertiary);
   margin-bottom: 0.25rem;
-
-  &.dark {
-    color: #9ca3af;
-  }
 }
 
 .value {
@@ -57,148 +51,116 @@
   width: 1.5rem;
 }
 
-// Color variants
+// Color variants using CSS custom properties
 .primary {
   .value {
-    color: #3b82f6;
+    color: var(--primary);
   }
-
+  
   .iconContainer {
-    background-color: #dbeafe;
-
-    &.dark {
-      background-color: rgba(59, 130, 246, 0.2);
-    }
+    background-color: var(--primary-light);
   }
-
+  
   .icon {
-    color: #3b82f6;
+    color: var(--primary);
   }
 }
 
 .green {
   .value {
-    color: #10b981;
+    color: var(--success);
   }
-
+  
   .iconContainer {
-    background-color: #d1fae5;
-
-    &.dark {
-      background-color: rgba(16, 185, 129, 0.2);
-    }
+    background-color: var(--success-light);
   }
-
+  
   .icon {
-    color: #10b981;
+    color: var(--success);
   }
 }
 
 .blue {
   .value {
-    color: #3b82f6;
+    color: var(--primary);
   }
-
+  
   .iconContainer {
-    background-color: #dbeafe;
-
-    &.dark {
-      background-color: rgba(59, 130, 246, 0.2);
-    }
+    background-color: var(--primary-light);
   }
-
+  
   .icon {
-    color: #3b82f6;
+    color: var(--primary);
   }
 }
 
 .purple {
   .value {
-    color: #8b5cf6;
+    color: var(--chart-5);
   }
-
+  
   .iconContainer {
-    background-color: #ede9fe;
-
-    &.dark {
-      background-color: rgba(139, 92, 246, 0.2);
-    }
+    background-color: rgba(139, 92, 246, 0.2);
   }
-
+  
   .icon {
-    color: #8b5cf6;
+    color: var(--chart-5);
   }
 }
 
 .red {
   .value {
-    color: #ef4444;
+    color: var(--danger);
   }
-
+  
   .iconContainer {
-    background-color: #fee2e2;
-
-    &.dark {
-      background-color: rgba(239, 68, 68, 0.2);
-    }
+    background-color: var(--danger-light);
   }
-
+  
   .icon {
-    color: #ef4444;
+    color: var(--danger);
   }
 }
 
 .yellow {
   .value {
-    color: #f59e0b;
+    color: var(--warning);
   }
-
+  
   .iconContainer {
-    background-color: #fef3c7;
-
-    &.dark {
-      background-color: rgba(245, 158, 11, 0.2);
-    }
+    background-color: var(--warning-light);
   }
-
+  
   .icon {
-    color: #f59e0b;
+    color: var(--warning);
   }
 }
 
 .indigo {
   .value {
-    color: #6366f1;
+    color: var(--chart-1);
   }
-
+  
   .iconContainer {
-    background-color: #e0e7ff;
-
-    &.dark {
-      background-color: rgba(99, 102, 241, 0.2);
-    }
+    background-color: rgba(99, 102, 241, 0.2);
   }
-
+  
   .icon {
-    color: #6366f1;
+    color: var(--chart-1);
   }
 }
 
 .pink {
   .value {
-    color: #ec4899;
+    color: var(--chart-7);
   }
-
+  
   .iconContainer {
-    background-color: #fce7f3;
-
-    &.dark {
-      background-color: rgba(236, 72, 153, 0.2);
-    }
+    background-color: rgba(236, 72, 153, 0.2);
   }
-
+  
   .icon {
-    color: #ec4899;
+    color: var(--chart-7);
   }
 }
 
@@ -207,7 +169,7 @@
   .value {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-
+  
   .iconContainer {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
@@ -218,17 +180,17 @@
   .cardContent {
     padding: 1rem;
   }
-
+  
   .iconContainer {
     height: 2.5rem;
     width: 2.5rem;
   }
-
+  
   .icon {
     height: 1.25rem;
     width: 1.25rem;
   }
-
+  
   .value {
     font-size: 1.25rem;
     line-height: 1.75rem;
@@ -237,12 +199,10 @@
 
 // Animation keyframes
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
   }
-
   50% {
     opacity: 0.5;
   }

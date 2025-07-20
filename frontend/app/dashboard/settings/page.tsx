@@ -54,8 +54,7 @@ export default function SettingsPage() {
   const { user } = useAuth()
   const { settings, updateSettings } = useSettings()
   const [loading, setLoading] = useState(false)
-  const [localSettings, setLocalSettings] = useState(settings)
-
+  const [localSettings, setLocalSettings] = useState(settings);
   useEffect(() => {
     setLocalSettings(settings)
   }, [settings])
@@ -84,7 +83,7 @@ export default function SettingsPage() {
   }
 
   const previewColorScheme = (scheme: 'light' | 'dark' | 'auto') => {
-    const root = document.documentElement
+    const root = document.body
     if (scheme === 'dark') {
       root.classList.add('dark')
       root.classList.remove('light')

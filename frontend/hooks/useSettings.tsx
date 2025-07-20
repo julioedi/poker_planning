@@ -15,16 +15,17 @@ interface UserSettings {
 export function useSettings() {
   const { user, updateUser } = useAuth()
   const [settings, setSettings] = useState<UserSettings>({
-    skillset: '',
-    color_scheme: 'light',
-    language: 'en',
-    timezone: 'UTC',
-    notifications: 'all'
+    skillset:  user?.skillset || '',
+    color_scheme: user?.color_scheme || 'light',
+    language: user?.language || 'en',
+    timezone: user?.timezone || 'UTC',
+    notifications: user?.notifications || 'all'
   })
+  
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user) {
+    if (user && !loading) {
       fetchSettings()
     }
   }, [user])
@@ -48,14 +49,14 @@ export function useSettings() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Settings loaded:', data.settings)
+        // console.log('Settings loaded:', data.settings)
         setSettings(data.settings)
         applyColorScheme(data.settings.color_scheme)
       } else {
-        console.error('Failed to fetch settings:', response.status, response.statusText)
+        // console.error('Failed to fetch settings:', response.status, response.statusText)
       }
     } catch (error) {
-      console.error('Error fetching settings:', error)
+      // console.error('Error fetching settings:', error)
     } finally {
       setLoading(false)
     }
@@ -75,7 +76,7 @@ export function useSettings() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('Settings updated:', data.settings)
+        // console.log('Settings updated:', data.settings)
         // Update settings with the response data
         setSettings(data.settings)
         
@@ -104,22 +105,34 @@ export function useSettings() {
     }
   }
 
-  const applyColorScheme = (scheme: string) => {
+  const applyColorScheme = (scheme: string, preventRemove = false) => {
     const root = document.documentElement
     
     // Remove existing classes
-    root.classList.remove('dark', 'light')
+    // root.classList.remove('dark', 'light')
     
     if (scheme === 'dark') {
       root.classList.add('dark')
+      if (!preventRemove) {
+        document.cookie = `color_scheme=dark`
+      }
     } else if (scheme === 'light') {
       root.classList.add('light')
+      if (!preventRemove) {
+        document.cookie = `color_scheme=light`
+      }
     } else {
       // Auto - check system preference
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         root.classList.add('dark')
+        if (!preventRemove) {
+          document.cookie = `color_scheme=dark`
+        }
       } else {
         root.classList.add('light')
+        if (!preventRemove) {
+          document.cookie = `color_scheme=light`
+        }
       }
     }
   }

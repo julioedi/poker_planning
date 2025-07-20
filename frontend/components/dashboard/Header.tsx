@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { useSettings } from '@/hooks/useSettings'
 import { t } from '@/lib/i18n'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { 
   Menu, 
   Search, 
@@ -82,6 +83,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         {/* Right side */}
         <div className="header-actions">
+          {/* Theme Toggle */}
+          <ThemeToggle variant="icon" size="md" className="mr-2" />
+          
           {/* Notifications */}
           <div className="relative">
             <button

@@ -11,10 +11,10 @@ interface User {
   status: string
   profile_picture?: string
   skillset?: string
-  color_scheme?: string
-  language?: string
+  color_scheme?: 'light' | 'dark' | 'auto'
+  language?: 'en' | 'es' | 'fr' | 'de' | 'ja'
   timezone?: string
-  notifications?: string
+  notifications?: 'all' | 'important' | 'none'
   created_at: string
 }
 
@@ -32,9 +32,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadingAuth, setLoadingAuth] = useState(false)
 
   useEffect(() => {
-    checkAuth()
+    if (!loadingAuth) {
+      checkAuth()
+    }
   }, [])
 
   const checkAuth = async () => {
@@ -49,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('token')
       delete axios.defaults.headers.common['Authorization']
     } finally {
+      setLoadingAuth(false)
       setLoading(false)
     }
   }
