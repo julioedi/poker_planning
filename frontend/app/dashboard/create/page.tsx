@@ -153,7 +153,7 @@ export default function CreatePlanningPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       toast.error(t('validationErrors', settings.language))
       return
@@ -162,7 +162,7 @@ export default function CreatePlanningPage() {
     try {
       setSubmitting(true)
       const token = localStorage.getItem('token')
-      
+
       const payload = {
         ...formData,
         participants: formData.participants.filter(p => p.email.trim()),
@@ -209,7 +209,7 @@ export default function CreatePlanningPage() {
   const updateParticipant = (index: number, field: keyof Participant, value: string) => {
     setFormData(prev => ({
       ...prev,
-      participants: prev.participants.map((p, i) => 
+      participants: prev.participants.map((p, i) =>
         i === index ? { ...p, [field]: value } : p
       )
     }))
@@ -232,7 +232,7 @@ export default function CreatePlanningPage() {
   const updateTopic = (index: number, field: keyof Topic, value: string) => {
     setFormData(prev => ({
       ...prev,
-      topics: prev.topics.map((t, i) => 
+      topics: prev.topics.map((t, i) =>
         i === index ? { ...t, [field]: value } : t
       )
     }))
@@ -465,15 +465,18 @@ export default function CreatePlanningPage() {
                       placeholder={t('participantEmail', settings.language)}
                     />
                   </div>
-                  <select
-                    value={participant.role}
-                    onChange={(e) => updateParticipant(index, 'role', e.target.value)}
-                    className="input w-32"
-                  >
-                    <option value="observer">{t('participantRoleObserver', settings.language)}</option>
-                    <option value="voter">{t('participantRoleVoter', settings.language)}</option>
-                    <option value="moderator">{t('participantRoleModerator', settings.language)}</option>
-                  </select>
+                  <div>
+
+                    <select
+                      value={participant.role}
+                      onChange={(e) => updateParticipant(index, 'role', e.target.value)}
+                      className="input w-32"
+                    >
+                      <option value="observer">{t('participantRoleObserver', settings.language)}</option>
+                      <option value="voter">{t('participantRoleVoter', settings.language)}</option>
+                      <option value="moderator">{t('participantRoleModerator', settings.language)}</option>
+                    </select>
+                  </div>
                   {formData.participants.length > 1 && (
                     <button
                       type="button"

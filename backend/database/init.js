@@ -40,10 +40,17 @@ async function initializeDatabase() {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
           description TEXT,
+          type TEXT NOT NULL DEFAULT 'web',
+          custom_type TEXT,
+          status TEXT NOT NULL DEFAULT 'planning',
+          start_date DATE NOT NULL,
+          end_date DATE,
+          owner_id INTEGER NOT NULL,
           product_owner_id INTEGER,
           product_manager_id INTEGER,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (owner_id) REFERENCES users (id),
           FOREIGN KEY (product_owner_id) REFERENCES users (id),
           FOREIGN KEY (product_manager_id) REFERENCES users (id)
         )
@@ -162,6 +169,9 @@ async function initializeDatabase() {
       createDefaultUser()
         .then(() => {
           console.log('✅ Database tables created successfully');
+          return migrateDatabase();
+        })
+        .then(() => {
           resolve();
         })
         .catch(reject);
@@ -212,6 +222,77 @@ async function createDefaultUser() {
             resolve();
           }
         );
+      });
+    });
+  });
+}
+
+// Migrate database schema
+async function migrateDatabase() {
+  return new Promise((resolve, reject) => {
+    // Check if projects table has the new fields
+    db.get("PRAGMA table_info(projects)", (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      // Get all column names from projects table
+      db.all("PRAGMA table_info(projects)", (err, columns) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const columnNames = columns.map(col => col.name);
+        const migrations = [];
+
+        // Add missing columns
+        if (!columnNames.includes('type')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN type TEXT NOT NULL DEFAULT "web"');
+        }
+        if (!columnNames.includes('custom_type')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN custom_type TEXT');
+        }
+        if (!columnNames.includes('status')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN status TEXT NOT NULL DEFAULT "planning"');
+        }
+        if (!columnNames.includes('start_date')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN start_date DATE NOT NULL DEFAULT "2024-01-01"');
+        }
+        if (!columnNames.includes('end_date')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN end_date DATE');
+        }
+        if (!columnNames.includes('owner_id')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN owner_id INTEGER NOT NULL DEFAULT 1');
+        }
+
+        // Execute migrations
+        if (migrations.length > 0) {
+          console.log('🔄 Running database migrations...');
+          let completed = 0;
+          
+          migrations.forEach((migration, index) => {
+            db.run(migration, (err) => {
+              if (err) {
+                console.error(`❌ Migration failed: ${migration}`, err);
+                reject(err);
+                return;
+              }
+              
+              completed++;
+              console.log(`✅ Migration ${completed}/${migrations.length} completed`);
+              
+              if (completed === migrations.length) {
+                console.log('✅ All migrations completed successfully');
+                resolve();
+              }
+            });
+          });
+        } else {
+          console.log('✅ Database schema is up to date');
+          resolve();
+        }
       });
     });
   });

@@ -5,7 +5,7 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import { useAuth } from '@/hooks/useAuth'
 import { useSettings } from '@/hooks/useSettings'
 import { t } from '@/lib/i18n'
-import { Users, Plus, Search, Edit, Trash2, UserPlus, Crown, Shield, User } from 'lucide-react'
+import { Users, Plus, Search, Edit, Trash2, UserPlus, Crown, Shield, User, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface TeamMember {
@@ -15,16 +15,20 @@ interface TeamMember {
   role: string
   status: string
   profile_picture?: string
-  join_date: string
-  last_active?: string
-  skillset?: string
+  skillset?: string[]
+  project_count: number
+  session_count: number
+  created_at: string
+  updated_at: string
 }
 
 interface Pagination {
   page: number
   limit: number
   total: number
-  pages: number
+  total_pages: number
+  has_next: boolean
+  has_prev: boolean
 }
 
 const roles = [
@@ -47,7 +51,9 @@ export default function TeamPage() {
     page: 1,
     limit: 10,
     total: 0,
-    pages: 0
+    total_pages: 0,
+    has_next: false,
+    has_prev: false
   })
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -56,9 +62,11 @@ export default function TeamPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     role: 'member',
     status: 'active'
   })
@@ -79,7 +87,7 @@ export default function TeamPage() {
         ...(statusFilter && { status: statusFilter })
       })
 
-      const response = await fetch(`/api/team?${params}`, {
+      const response = await fetch(`http://localhost:5000/api/team?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -90,11 +98,27 @@ export default function TeamPage() {
       }
 
       const data = await response.json()
-      setTeamMembers(data.members)
-      setPagination(data.pagination)
+      setTeamMembers(data.team_members || [])
+      setPagination(data.pagination || {
+        page: 1,
+        limit: 10,
+        total: 0,
+        total_pages: 0,
+        has_next: false,
+        has_prev: false
+      })
     } catch (error) {
       console.error('Error fetching team members:', error)
       toast.error(t('failedToLoadTeam', settings.language))
+      setTeamMembers([])
+      setPagination({
+        page: 1,
+        limit: 10,
+        total: 0,
+        total_pages: 0,
+        has_next: false,
+        has_prev: false
+      })
     } finally {
       setLoading(false)
     }
@@ -102,9 +126,15 @@ export default function TeamPage() {
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!formData.password.trim()) {
+      toast.error(t('passwordRequired', settings.language))
+      return
+    }
+
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('/api/team', {
+      const response = await fetch('http://localhost:5000/api/team', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +150,8 @@ export default function TeamPage() {
 
       toast.success(t('teamMemberAdded', settings.language))
       setShowAddModal(false)
-      setFormData({ name: '', email: '', role: 'member', status: 'active' })
+      setFormData({ name: '', email: '', password: '', role: 'member', status: 'active' })
+      setShowPassword(false)
       fetchTeamMembers()
     } catch (error: any) {
       toast.error(error.message)
@@ -133,13 +164,20 @@ export default function TeamPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`/api/team/${selectedMember.id}`, {
+      const updateData = { ...formData }
+      
+      // Only include password if it's been changed
+      if (!updateData.password.trim()) {
+        delete updateData.password
+      }
+
+      const response = await fetch(`http://localhost:5000/api/team/${selectedMember.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(updateData)
       })
 
       if (!response.ok) {
@@ -150,7 +188,8 @@ export default function TeamPage() {
       toast.success(t('teamMemberUpdated', settings.language))
       setShowEditModal(false)
       setSelectedMember(null)
-      setFormData({ name: '', email: '', role: 'member', status: 'active' })
+      setFormData({ name: '', email: '', password: '', role: 'member', status: 'active' })
+      setShowPassword(false)
       fetchTeamMembers()
     } catch (error: any) {
       toast.error(error.message)
@@ -162,7 +201,7 @@ export default function TeamPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`/api/team/${memberId}`, {
+      const response = await fetch(`http://localhost:5000/api/team/${memberId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -186,15 +225,27 @@ export default function TeamPage() {
     setFormData({
       name: member.name,
       email: member.email,
+      password: '', // Don't populate password for security
       role: member.role,
       status: member.status
     })
+    setShowPassword(false)
     setShowEditModal(true)
   }
 
   const resetForm = () => {
-    setFormData({ name: '', email: '', role: 'member', status: 'active' })
+    setFormData({ name: '', email: '', password: '', role: 'member', status: 'active' })
+    setShowPassword(false)
     setSelectedMember(null)
+  }
+
+  const generatePassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
+    let password = ''
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    setFormData(prev => ({ ...prev, password }))
   }
 
   const getRoleLabel = (role: string) => {
@@ -267,7 +318,7 @@ export default function TeamPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="input"
             >
-              <option value="">{t('allStatus', settings.language)}</option>
+              <option value="">{t('allStatuses', settings.language)}</option>
               {statuses.map((status) => (
                 <option key={status.value} value={status.value}>
                   {t(status.label as any, settings.language)}
@@ -279,6 +330,7 @@ export default function TeamPage() {
                 setSearch('')
                 setRoleFilter('')
                 setStatusFilter('')
+                setPagination(prev => ({ ...prev, page: 1 }))
               }}
               className="btn-outline btn-md"
             >
@@ -294,7 +346,7 @@ export default function TeamPage() {
           <div className="col-span-full flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           </div>
-        ) : teamMembers.length === 0 ? (
+        ) : teamMembers && teamMembers.length === 0 ? (
           <div className="col-span-full text-center py-12">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -314,7 +366,7 @@ export default function TeamPage() {
             </div>
           </div>
         ) : (
-          teamMembers.map((member) => {
+          teamMembers && teamMembers.map((member) => {
             const RoleIcon = getRoleIcon(member.role)
             return (
               <div key={member.id} className="card hover:shadow-lg transition-shadow">
@@ -324,7 +376,7 @@ export default function TeamPage() {
                       <div className="h-12 w-12 rounded-full bg-primary-600 flex items-center justify-center mr-3 overflow-hidden">
                         {member.profile_picture ? (
                           <img
-                            src={`/api/uploads/${member.profile_picture}`}
+                            src={`http://localhost:5000/uploads/${member.profile_picture}`}
                             alt={member.name}
                             className="h-full w-full object-cover"
                             onError={(e) => {
@@ -384,18 +436,39 @@ export default function TeamPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('joinDate', settings.language)}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('projects', settings.language)}</span>
                       <span className="text-sm text-gray-900 dark:text-white">
-                        {new Date(member.join_date).toLocaleDateString()}
+                        {member.project_count}
                       </span>
                     </div>
 
-                    {member.last_active && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('sessions', settings.language)}</span>
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {member.session_count}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('joinDate', settings.language)}</span>
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {new Date(member.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    {member.skillset && member.skillset.length > 0 && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">{t('lastActive', settings.language)}</span>
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {new Date(member.last_active).toLocaleDateString()}
-                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{t('skills', settings.language)}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {member.skillset.slice(0, 3).map((skill, index) => (
+                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 text-xs rounded">
+                              {skill}
+                            </span>
+                          ))}
+                          {member.skillset.length > 3 && (
+                            <span className="text-xs text-gray-500">+{member.skillset.length - 3}</span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -407,7 +480,7 @@ export default function TeamPage() {
       </div>
 
       {/* Pagination */}
-      {pagination.pages > 1 && (
+      {pagination.total_pages > 1 && (
         <div className="flex items-center justify-between mt-8">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {t('showingResults', settings.language, {
@@ -419,14 +492,14 @@ export default function TeamPage() {
           <div className="flex space-x-2">
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-              disabled={pagination.page === 1}
+              disabled={!pagination.has_prev}
               className="btn-outline btn-sm disabled:opacity-50"
             >
               {t('previous', settings.language)}
             </button>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-              disabled={pagination.page === pagination.pages}
+              disabled={!pagination.has_next}
               className="btn-outline btn-sm disabled:opacity-50"
             >
               {t('next', settings.language)}
@@ -463,6 +536,37 @@ export default function TeamPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t('password', settings.language)} *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={formData.password}
+                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                      className="input pr-10"
+                      placeholder={t('enterPassword', settings.language)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={generatePassword}
+                      className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      {t('generatePassword', settings.language)}
+                    </button>
+                  </div>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('memberRole', settings.language)}</label>
                   <select
                     value={formData.role}
@@ -491,18 +595,18 @@ export default function TeamPage() {
                   </select>
                 </div>
               </div>
-              <div className="flex space-x-3 mt-6">
+              <div className="flex justify-end space-x-3 mt-6">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowAddModal(false)
-                    resetForm()
-                  }}
-                  className="btn-outline btn-md flex-1"
+                  onClick={() => setShowAddModal(false)}
+                  className="btn-outline btn-md"
                 >
                   {t('cancel', settings.language)}
                 </button>
-                <button type="submit" className="btn-primary btn-md flex-1">
+                <button
+                  type="submit"
+                  className="btn-primary btn-md"
+                >
                   {t('addTeamMember', settings.language)}
                 </button>
               </div>
@@ -512,7 +616,7 @@ export default function TeamPage() {
       )}
 
       {/* Edit Team Member Modal */}
-      {showEditModal && (
+      {showEditModal && selectedMember && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('editTeamMember', settings.language)}</h3>
@@ -539,6 +643,36 @@ export default function TeamPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t('password', settings.language)} ({t('leaveBlankToKeep', settings.language)})
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                      className="input pr-10"
+                      placeholder={t('enterNewPassword', settings.language)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={generatePassword}
+                      className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      {t('generatePassword', settings.language)}
+                    </button>
+                  </div>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('memberRole', settings.language)}</label>
                   <select
                     value={formData.role}
@@ -567,18 +701,18 @@ export default function TeamPage() {
                   </select>
                 </div>
               </div>
-              <div className="flex space-x-3 mt-6">
+              <div className="flex justify-end space-x-3 mt-6">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowEditModal(false)
-                    resetForm()
-                  }}
-                  className="btn-outline btn-md flex-1"
+                  onClick={() => setShowEditModal(false)}
+                  className="btn-outline btn-md"
                 >
                   {t('cancel', settings.language)}
                 </button>
-                <button type="submit" className="btn-primary btn-md flex-1">
+                <button
+                  type="submit"
+                  className="btn-primary btn-md"
+                >
                   {t('updateTeamMember', settings.language)}
                 </button>
               </div>

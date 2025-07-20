@@ -138,7 +138,8 @@ router.get('/:id', async (req, res) => {
 
 // Create new project
 router.post('/', [
-  body('name').isLength({ min: 2, max: 100 }),
+  body('name').isLength({ min: 2, max: 100 }).withMessage('Project name is required'),
+  body('start_date').notEmpty().withMessage('Start date is required'),
   body('description').optional().isLength({ max: 500 }),
   body('product_owner_id').optional().isInt(),
   body('product_manager_id').optional().isInt()
@@ -153,9 +154,12 @@ router.post('/', [
       });
     }
 
-    const { name, description, product_owner_id, product_manager_id } = req.body;
+    const { name, description } = req.body;
+    const creatorId = req.user.id;
+    // Default PO and PM to creator if not provided
+    const product_owner_id = req.body.product_owner_id || creatorId;
+    const product_manager_id = req.body.product_manager_id || creatorId;
 
-    // Create project
     db.run(
       'INSERT INTO projects (name, description, product_owner_id, product_manager_id) VALUES (?, ?, ?, ?)',
       [name, description, product_owner_id, product_manager_id],
@@ -163,32 +167,35 @@ router.post('/', [
         if (err) {
           return res.status(500).json({ error: 'Failed to create project' });
         }
-
         const projectId = this.lastID;
-
-        // Get the created project
-        db.get(`
-          SELECT 
-            p.*,
-            po.name as product_owner_name,
-            pm.name as product_manager_name
-          FROM projects p
-          LEFT JOIN users po ON p.product_owner_id = po.id
-          LEFT JOIN users pm ON p.product_manager_id = pm.id
-          WHERE p.id = ?
-        `, [projectId], (err, project) => {
-          if (err) {
-            return res.status(500).json({ error: 'Database error' });
+        // Add creator as member (role: product_owner)
+        db.run('INSERT INTO project_members (project_id, user_id, role) VALUES (?, ?, ?)',
+          [projectId, creatorId, 'product_owner'],
+          function(memberErr) {
+            if (memberErr) {
+              return res.status(500).json({ error: 'Failed to add creator as member' });
+            }
+            // Get the created project
+            db.get(`
+              SELECT 
+                p.*, po.name as product_owner_name, pm.name as product_manager_name
+              FROM projects p
+              LEFT JOIN users po ON p.product_owner_id = po.id
+              LEFT JOIN users pm ON p.product_manager_id = pm.id
+              WHERE p.id = ?
+            `, [projectId], (err, project) => {
+              if (err) {
+                return res.status(500).json({ error: 'Database error' });
+              }
+              res.status(201).json({
+                message: 'Project created successfully',
+                project
+              });
+            });
           }
-
-          res.status(201).json({
-            message: 'Project created successfully',
-            project
-          });
-        });
-      }
-    );
-
+        ); // closes db.run for project_members
+      } // closes function(err) for project creation
+    ); // closes db.run for project creation
   } catch (error) {
     console.error('Create project error:', error);
     res.status(500).json({ error: 'Internal server error' });

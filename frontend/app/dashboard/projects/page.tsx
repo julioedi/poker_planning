@@ -7,6 +7,7 @@ import { useSettings } from '@/hooks/useSettings'
 import { t } from '@/lib/i18n'
 import { Folder, Plus, Search, Edit, Trash2, Calendar, Users, Clock, CheckCircle, XCircle, Pause } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 interface Project {
   id: number
@@ -69,6 +70,7 @@ export default function ProjectsPage() {
     name: '',
     description: '',
     type: 'web',
+    customType: '',
     status: 'planning',
     start_date: '',
     end_date: ''
@@ -131,7 +133,7 @@ export default function ProjectsPage() {
 
       toast.success(t('projectCreated', settings.language))
       setShowAddModal(false)
-      setFormData({ name: '', description: '', type: 'web', status: 'planning', start_date: '', end_date: '' })
+      setFormData({ name: '', description: '', type: 'web', customType: '', status: 'planning', start_date: '', end_date: '' })
       fetchProjects()
     } catch (error: any) {
       toast.error(error.message)
@@ -161,7 +163,7 @@ export default function ProjectsPage() {
       toast.success(t('projectUpdated', settings.language))
       setShowEditModal(false)
       setSelectedProject(null)
-      setFormData({ name: '', description: '', type: 'web', status: 'planning', start_date: '', end_date: '' })
+      setFormData({ name: '', description: '', type: 'web', customType: '', status: 'planning', start_date: '', end_date: '' })
       fetchProjects()
     } catch (error: any) {
       toast.error(error.message)
@@ -193,11 +195,15 @@ export default function ProjectsPage() {
   }
 
   const openEditModal = (project: Project) => {
+    // Check if this is a custom type by seeing if it's not in the predefined types
+    const isCustomType = !projectTypes.find(t => t.value === project.type);
+    
     setSelectedProject(project)
     setFormData({
       name: project.name,
       description: project.description,
-      type: project.type,
+      type: isCustomType ? 'other' : project.type,
+      customType: isCustomType ? project.type : '',
       status: project.status,
       start_date: project.start_date,
       end_date: project.end_date || ''
@@ -206,11 +212,18 @@ export default function ProjectsPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', type: 'web', status: 'planning', start_date: '', end_date: '' })
+    setFormData({ name: '', description: '', type: 'web', customType: '', status: 'planning', start_date: '', end_date: '' })
     setSelectedProject(null)
   }
 
   const getTypeLabel = (type: string) => {
+    // Check if this is a custom type by seeing if it's not in the predefined types
+    const isCustomType = !projectTypes.find(t => t.value === type);
+    
+    if (isCustomType) {
+      return type; // Return the custom type name directly
+    }
+    
     const typeObj = projectTypes.find(t => t.value === type)
     return typeObj ? t(typeObj.label as any, settings.language) : type
   }
@@ -335,7 +348,7 @@ export default function ProjectsPage() {
           projects.map((project) => {
             const StatusIcon = getStatusIcon(project.status)
             return (
-              <div key={project.id} className="card hover:shadow-lg transition-shadow">
+              <Link href={`/dashboard/projects/${project.id}`} key={project.id} className="card hover:shadow-lg transition-shadow block">
                 <div className="card-content">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
@@ -349,14 +362,14 @@ export default function ProjectsPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => openEditModal(project)}
+                        onClick={e => { e.preventDefault(); e.stopPropagation(); openEditModal(project); }}
                         className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
                         title={t('editProject', settings.language)}
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteProject(project.id)}
+                        onClick={e => { e.preventDefault(); e.stopPropagation(); handleDeleteProject(project.id); }}
                         className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                         title={t('deleteProject', settings.language)}
                       >
@@ -385,11 +398,18 @@ export default function ProjectsPage() {
                       </span>
                     </div>
 
-                    {project.end_date && (
+                    {project.end_date ? (
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-500 dark:text-gray-400">{t('endDate', settings.language)}</span>
                         <span className="text-sm text-gray-900 dark:text-white">
                           {new Date(project.end_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{t('endDate', settings.language)}</span>
+                        <span className="text-sm text-gray-900 dark:text-white italic opacity-70">
+                          {t('on_going', settings.language)}
                         </span>
                       </div>
                     )}
@@ -411,7 +431,7 @@ export default function ProjectsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             )
           })
         )}
@@ -487,6 +507,19 @@ export default function ProjectsPage() {
                     ))}
                   </select>
                 </div>
+                {formData.type === 'other' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('customType', settings.language)}</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={t('enterCustomType', settings.language)}
+                      value={formData.customType}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customType: e.target.value }))}
+                      className="input"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('projectStatus', settings.language)}</label>
                   <select
@@ -582,6 +615,19 @@ export default function ProjectsPage() {
                     ))}
                   </select>
                 </div>
+                {formData.type === 'other' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('customType', settings.language)}</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={t('enterCustomType', settings.language)}
+                      value={formData.customType}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customType: e.target.value }))}
+                      className="input"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('projectStatus', settings.language)}</label>
                   <select

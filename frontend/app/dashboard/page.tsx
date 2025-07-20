@@ -125,19 +125,19 @@ export default function DashboardPage() {
       title: t('totalSessions', settings.language),
       value: stats.totalSessions,
       icon: BarChart3,
-      color: 'primary' as const
+      color: 'red' as const
     },
     {
       title: t('activeProjects', settings.language),
       value: stats.activeProjects,
       icon: Folder,
-      color: 'green' as const
+      color: 'yellow' as const
     },
     {
       title: t('teamMembers', settings.language),
       value: stats.teamMembers,
       icon: Users,
-      color: 'blue' as const
+      color: 'indigo' as const
     },
     {
       title: t('completedSessions', settings.language),

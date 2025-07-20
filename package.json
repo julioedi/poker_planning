@@ -13,10 +13,19 @@
     "setup": "node scripts/setup.js",
     "setup:quick": "npm run install:all && cd backend && npm run setup-db"
   },
-  "keywords": ["poker-planning", "websockets", "nextjs", "express", "sqlite3"],
+  "keywords": [
+    "poker-planning",
+    "websockets",
+    "nextjs",
+    "express",
+    "sqlite3"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.4"
   }
-} 
+}

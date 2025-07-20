@@ -1,4 +1,6 @@
-export default {
+import { Translation } from '../types'
+
+const en: Translation = {
   // Common
   loading: 'Loading...',
   cancel: 'Cancel',
@@ -36,7 +38,6 @@ export default {
   logoutSuccess: 'Logout successful',
 
   // Dashboard
-  welcomeBack: 'Welcome back, {name}!',
   configurePreferences: 'Configure your preferences and manage your planning sessions',
   quickStats: 'Quick Stats',
   totalSessions: 'Total Sessions',
@@ -57,7 +58,6 @@ export default {
   viewSessions: 'View Sessions',
   viewSettings: 'View Settings',
   noRecentActivity: 'No recent activity',
-  noSessionsYet: 'No sessions created yet',
   noProjectsYet: 'No projects created yet',
   noTeamMembersYet: 'No team members yet',
   getStarted: 'Get Started',
@@ -80,7 +80,6 @@ export default {
   signOut: 'Sign out',
 
   // Settings
-  configurePreferences: 'Configure your account preferences and application settings',
   skillset: 'Skillset',
   yourSkillsExpertise: 'Your Skills & Expertise',
   skillsetPlaceholder: 'e.g., React, Node.js, TypeScript, Agile, Scrum Master...',
@@ -127,7 +126,6 @@ export default {
   failedToDeleteUser: 'Failed to delete user',
 
   // Team Management
-  teamMembers: 'Team Members',
   manageTeam: 'Manage your team members and their roles',
   teamMember: 'Team Member',
   addTeamMember: 'Add Team Member',
@@ -152,6 +150,11 @@ export default {
   member: 'Member',
   lead: 'Lead',
   pending: 'Pending',
+  enterPassword: 'Enter password',
+  enterNewPassword: 'Enter new password (leave blank to keep current)',
+  leaveBlankToKeep: 'leave blank to keep current',
+  generatePassword: 'Generate secure password',
+  allStatuses: 'All Statuses',
 
   // Projects
   createNewProject: 'Create New Project',
@@ -161,7 +164,6 @@ export default {
   startDate: 'Start Date',
   endDate: 'End Date',
   projectCreated: 'Project created successfully',
-  projectUpdated: 'Project updated successfully',
   projectDeleted: 'Project deleted successfully',
   yourProjects: 'Your Projects',
   manageProjects: 'Manage your projects and their planning sessions',
@@ -192,6 +194,8 @@ export default {
     infrastructure: 'Infrastructure',
     other: 'Other'
   },
+  customType: 'Custom Type',
+  enterCustomType: 'Enter custom project type...',
   projectStatuses: {
     planning: 'Planning',
     active: 'Active',
@@ -201,28 +205,38 @@ export default {
   },
   allTypes: 'All Types',
   updateProject: 'Update Project',
+  on_going: 'On going',
+  on_going_desc: 'The project is ongoing',
+  on_going_desc_2: 'The project is ongoing and has no end date',
+  participantRole_product_owner: 'Product Owner',
+  participantRole_product_manager: 'Product Manager',
+  participantRole_project_members: 'Project Members',
+  participantRole_planning_sessions: 'Planning Sessions',
+  active_sessions: 'Active Sessions',
+  completed_sessions: 'Completed Sessions',
+  cancelled_sessions: 'Cancelled Sessions',
+  addMember: 'Add Member',
+  addProjectMember: 'Add Project Member',
+  addSession: 'Add Session',
+  addPlanning: 'Add Planning',
+  addPlanningSession: 'Add Planning Session',
 
   // Sessions
-  mySessions: 'My Sessions',
   viewAndManageSessions: 'View and manage your planning sessions',
   createSession: 'Create Session',
   searchSessions: 'Search sessions...',
-  allStatus: 'All Status',
   allProjects: 'All Projects',
   clear: 'Clear',
   noSessionsFound: 'No sessions found',
   tryAdjustingFilters: 'Try adjusting your filters to see more results.',
   noSessionsYet: 'You haven\'t created or joined any planning sessions yet.',
-  createFirstSession: 'Create Your First Session',
   roomCode: 'Room Code',
   participants: 'participants',
   topics: 'topics',
-  created: 'Created',
   start: 'Start',
   join: 'Join',
   end: 'End',
   viewResults: 'View Results',
-  joinSession: 'Join Session',
   showingSessions: 'Showing {from} to {to} of {total} sessions',
   sessionStarted: 'Session started successfully',
   sessionEnded: 'Session ended successfully',
@@ -276,7 +290,6 @@ export default {
   custom: 'Custom',
   customValues: 'Custom Values',
   customValuesPlaceholder: 'Enter values separated by commas (e.g., 1,2,3,5,8)',
-  participants: 'Participants',
   addParticipant: 'Add Participant',
   removeParticipant: 'Remove',
   participantEmail: 'Email',
@@ -284,13 +297,10 @@ export default {
   participantRoleObserver: 'Observer',
   participantRoleVoter: 'Voter',
   participantRoleModerator: 'Moderator',
-  topics: 'Topics',
   addTopic: 'Add Topic',
   removeTopic: 'Remove',
   topicTitle: 'Topic Title',
   topicDescription: 'Topic Description',
-  createSession: 'Create Session',
-  cancel: 'Cancel',
   sessionCreated: 'Planning session created successfully',
   failedToCreateSession: 'Failed to create planning session',
   validationErrors: 'Please fix the following errors:',
@@ -304,3 +314,5 @@ export default {
   duplicateEmail: 'Duplicate email address',
   invalidCustomValues: 'Invalid custom values format'
 } 
+
+export default en;
