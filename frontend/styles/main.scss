@@ -1,0 +1,19 @@
+// Import Tailwind CSS
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Import SASS modules
+@import 'variables';
+@import 'base';
+@import 'buttons';
+@import 'forms';
+@import 'cards';
+@import 'dashboard';
+@import 'dropdowns';
+@import 'tables';
+@import 'status';
+@import 'modals'; 

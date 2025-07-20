@@ -10,6 +10,11 @@ interface User {
   role: string
   status: string
   profile_picture?: string
+  skillset?: string
+  color_scheme?: 'light' | 'dark' | 'auto'
+  language?: 'en' | 'es' | 'fr' | 'de' | 'ja'
+  timezone?: string
+  notifications?: 'all' | 'important' | 'none'
   created_at: string
 }
 
@@ -19,6 +24,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   register: (email: string, name: string, password: string) => Promise<void>
+  updateUser: (userData: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -26,9 +32,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadingAuth, setLoadingAuth] = useState(false)
 
   useEffect(() => {
-    checkAuth()
+    if (!loadingAuth) {
+      checkAuth()
+    }
   }, [])
 
   const checkAuth = async () => {
@@ -43,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('token')
       delete axios.defaults.headers.common['Authorization']
     } finally {
+      setLoadingAuth(false)
       setLoading(false)
     }
   }
@@ -83,8 +93,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateUser = (userData: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...userData } : null)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

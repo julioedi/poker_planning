@@ -40,10 +40,17 @@ async function initializeDatabase() {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
           description TEXT,
+          type TEXT NOT NULL DEFAULT 'web',
+          custom_type TEXT,
+          status TEXT NOT NULL DEFAULT 'planning',
+          start_date DATE NOT NULL,
+          end_date DATE,
+          owner_id INTEGER NOT NULL,
           product_owner_id INTEGER,
           product_manager_id INTEGER,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (owner_id) REFERENCES users (id),
           FOREIGN KEY (product_owner_id) REFERENCES users (id),
           FOREIGN KEY (product_manager_id) REFERENCES users (id)
         )
@@ -162,6 +169,9 @@ async function initializeDatabase() {
       createDefaultUser()
         .then(() => {
           console.log('✅ Database tables created successfully');
+          return migrateDatabase();
+        })
+        .then(() => {
           resolve();
         })
         .catch(reject);
@@ -171,7 +181,7 @@ async function initializeDatabase() {
 
 // Create default admin user
 async function createDefaultUser() {
-  const defaultUserId = process.env.DEFAULT_USER_ID || 0;
+  const defaultUserId = process.env.DEFAULT_USER_ID || 1;
   const defaultEmail = process.env.DEFAULT_USER_EMAIL || 'admin@pokerplanning.com';
   const defaultName = process.env.DEFAULT_USER_NAME || 'Admin User';
   const defaultPassword = process.env.DEFAULT_USER_PASSWORD || 'admin123';
@@ -217,6 +227,77 @@ async function createDefaultUser() {
   });
 }
 
+// Migrate database schema
+async function migrateDatabase() {
+  return new Promise((resolve, reject) => {
+    // Check if projects table has the new fields
+    db.get("PRAGMA table_info(projects)", (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      // Get all column names from projects table
+      db.all("PRAGMA table_info(projects)", (err, columns) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const columnNames = columns.map(col => col.name);
+        const migrations = [];
+
+        // Add missing columns
+        if (!columnNames.includes('type')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN type TEXT NOT NULL DEFAULT "web"');
+        }
+        if (!columnNames.includes('custom_type')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN custom_type TEXT');
+        }
+        if (!columnNames.includes('status')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN status TEXT NOT NULL DEFAULT "planning"');
+        }
+        if (!columnNames.includes('start_date')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN start_date DATE NOT NULL DEFAULT "2024-01-01"');
+        }
+        if (!columnNames.includes('end_date')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN end_date DATE');
+        }
+        if (!columnNames.includes('owner_id')) {
+          migrations.push('ALTER TABLE projects ADD COLUMN owner_id INTEGER NOT NULL DEFAULT 1');
+        }
+
+        // Execute migrations
+        if (migrations.length > 0) {
+          console.log('🔄 Running database migrations...');
+          let completed = 0;
+          
+          migrations.forEach((migration, index) => {
+            db.run(migration, (err) => {
+              if (err) {
+                console.error(`❌ Migration failed: ${migration}`, err);
+                reject(err);
+                return;
+              }
+              
+              completed++;
+              console.log(`✅ Migration ${completed}/${migrations.length} completed`);
+              
+              if (completed === migrations.length) {
+                console.log('✅ All migrations completed successfully');
+                resolve();
+              }
+            });
+          });
+        } else {
+          console.log('✅ Database schema is up to date');
+          resolve();
+        }
+      });
+    });
+  });
+}
+
 // Generate room code
 function generateRoomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -232,7 +313,7 @@ const dbUtils = {
   // Get user by ID
   getUserById: (id) => {
     return new Promise((resolve, reject) => {
-      db.get('SELECT id, email, name, role, status, profile_picture, created_at FROM users WHERE id = ?', [id], (err, row) => {
+      db.get('SELECT id, email, name, role, status, profile_picture, skillset, color_scheme, language, timezone, notifications, created_at, updated_at FROM users WHERE id = ?', [id], (err, row) => {
         if (err) reject(err);
         else resolve(row);
       });
@@ -289,6 +370,55 @@ const dbUtils = {
         });
       };
       generateCode();
+    });
+  },
+
+  // Clean up orphaned profile pictures
+  cleanupOrphanedProfilePictures: () => {
+    return new Promise((resolve, reject) => {
+      const fs = require('fs');
+      const uploadsDir = path.join(__dirname, '../uploads');
+      
+      // Get all profile pictures in database
+      db.all('SELECT profile_picture FROM users WHERE profile_picture IS NOT NULL', (err, users) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const dbFiles = new Set(users.map(user => user.profile_picture).filter(Boolean));
+        
+        // Read all files in uploads directory
+        fs.readdir(uploadsDir, (err, files) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          // Filter profile picture files (files starting with 'profile-')
+          const profileFiles = files.filter(file => file.startsWith('profile-'));
+          
+          // Find orphaned files
+          const orphanedFiles = profileFiles.filter(file => !dbFiles.has(file));
+          
+          // Delete orphaned files
+          let deletedCount = 0;
+          orphanedFiles.forEach(file => {
+            const filePath = path.join(uploadsDir, file);
+            fs.unlink(filePath, (err) => {
+              if (err) {
+                console.error(`Error deleting orphaned file ${file}:`, err);
+              } else {
+                console.log(`Deleted orphaned profile picture: ${file}`);
+                deletedCount++;
+              }
+            });
+          });
+
+          console.log(`Cleanup completed. Deleted ${deletedCount} orphaned profile pictures.`);
+          resolve(deletedCount);
+        });
+      });
     });
   }
 };

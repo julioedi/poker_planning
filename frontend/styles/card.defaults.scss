@@ -1,0 +1,180 @@
+// Card Defaults Mixin
+@mixin cardDefaults {
+  background-color: var(--surface-primary);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+// Text Color Mixins
+@mixin textPrimary {
+  color: var(--text-primary);
+}
+
+@mixin textSecondary {
+  color: var(--text-secondary);
+}
+
+@mixin textTertiary {
+  color: var(--text-tertiary);
+}
+
+@mixin textMuted {
+  color: var(--text-muted);
+}
+
+// Background Color Mixins
+@mixin bgPrimary {
+  background-color: var(--bg-primary);
+}
+
+@mixin bgSecondary {
+  background-color: var(--bg-secondary);
+}
+
+@mixin bgTertiary {
+  background-color: var(--bg-tertiary);
+}
+
+// Surface Color Mixins
+@mixin surfacePrimary {
+  background-color: var(--surface-primary);
+}
+
+@mixin surfaceSecondary {
+  background-color: var(--surface-secondary);
+}
+
+@mixin surfaceTertiary {
+  background-color: var(--surface-tertiary);
+}
+
+// Border Color Mixins
+@mixin borderPrimary {
+  border-color: var(--border-primary);
+}
+
+@mixin borderSecondary {
+  border-color: var(--border-secondary);
+}
+
+@mixin borderTertiary {
+  border-color: var(--border-tertiary);
+}
+
+// Shadow Mixins
+@mixin shadowSm {
+  box-shadow: var(--shadow-sm);
+}
+
+@mixin shadowMd {
+  box-shadow: var(--shadow-md);
+}
+
+@mixin shadowLg {
+  box-shadow: var(--shadow-lg);
+}
+
+@mixin shadowXl {
+  box-shadow: var(--shadow-xl);
+}
+
+// Button Mixins
+@mixin buttonPrimary {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+}
+
+@mixin buttonOutline {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-primary);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+}
+
+// Theme Transition Mixin
+@mixin themeTransition {
+  transition: background-color 0.2s ease-in-out, 
+              color 0.2s ease-in-out, 
+              border-color 0.2s ease-in-out,
+              box-shadow 0.2s ease-in-out;
+}
+
+// Focus Ring Mixin
+@mixin focusRing {
+  &:focus {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+}
+
+// Status Color Mixins
+@mixin statusOnline {
+  color: var(--status-online);
+}
+
+@mixin statusOffline {
+  color: var(--status-offline);
+}
+
+@mixin statusAway {
+  color: var(--status-away);
+}
+
+@mixin statusBusy {
+  color: var(--status-busy);
+}
+
+// Chart Color Mixins
+@mixin chartColor1 { color: var(--chart-1); }
+@mixin chartColor2 { color: var(--chart-2); }
+@mixin chartColor3 { color: var(--chart-3); }
+@mixin chartColor4 { color: var(--chart-4); }
+@mixin chartColor5 { color: var(--chart-5); }
+@mixin chartColor6 { color: var(--chart-6); }
+@mixin chartColor7 { color: var(--chart-7); }
+@mixin chartColor8 { color: var(--chart-8); }
+
+// Chart Background Mixins
+@mixin chartBg1 { background-color: var(--chart-1); }
+@mixin chartBg2 { background-color: var(--chart-2); }
+@mixin chartBg3 { background-color: var(--chart-3); }
+@mixin chartBg4 { background-color: var(--chart-4); }
+@mixin chartBg5 { background-color: var(--chart-5); }
+@mixin chartBg6 { background-color: var(--chart-6); }
+@mixin chartBg7 { background-color: var(--chart-7); }
+@mixin chartBg8 { background-color: var(--chart-8); } 

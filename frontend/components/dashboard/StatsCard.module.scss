@@ -1,0 +1,209 @@
+.statsCard {
+  background-color: var(--card);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+.cardLayout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.textContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-bottom: 0.25rem;
+}
+
+.value {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+
+.iconContainer {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+// Color variants using CSS custom properties
+.primary {
+  .value {
+    color: var(--primary);
+  }
+  
+  .iconContainer {
+    background-color: var(--primary-light);
+  }
+  
+  .icon {
+    color: var(--primary);
+  }
+}
+
+.green {
+  .value {
+    color: var(--success);
+  }
+  
+  .iconContainer {
+    background-color: var(--success-light);
+  }
+  
+  .icon {
+    color: var(--success);
+  }
+}
+
+.blue {
+  .value {
+    color: var(--primary);
+  }
+  
+  .iconContainer {
+    background-color: var(--primary-light);
+  }
+  
+  .icon {
+    color: var(--primary);
+  }
+}
+
+.purple {
+  .value {
+    color: var(--chart-5);
+  }
+  
+  .iconContainer {
+    background-color: rgba(139, 92, 246, 0.2);
+  }
+  
+  .icon {
+    color: var(--chart-5);
+  }
+}
+
+.red {
+  .value {
+    color: var(--danger);
+  }
+  
+  .iconContainer {
+    background-color: var(--danger-light);
+  }
+  
+  .icon {
+    color: var(--danger);
+  }
+}
+
+.yellow {
+  .value {
+    color: var(--warning);
+  }
+  
+  .iconContainer {
+    background-color: var(--warning-light);
+  }
+  
+  .icon {
+    color: var(--warning);
+  }
+}
+
+.indigo {
+  .value {
+    color: var(--chart-1);
+  }
+  
+  .iconContainer {
+    background-color: rgba(99, 102, 241, 0.2);
+  }
+  
+  .icon {
+    color: var(--chart-1);
+  }
+}
+
+.pink {
+  .value {
+    color: var(--chart-7);
+  }
+  
+  .iconContainer {
+    background-color: rgba(236, 72, 153, 0.2);
+  }
+  
+  .icon {
+    color: var(--chart-7);
+  }
+}
+
+// Loading state
+.loading {
+  .value {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .iconContainer {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .cardContent {
+    padding: 1rem;
+  }
+  
+  .iconContainer {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+  
+  .icon {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+  
+  .value {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+// Animation keyframes
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

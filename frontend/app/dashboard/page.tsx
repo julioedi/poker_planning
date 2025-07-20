@@ -1,13 +1,151 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { useSettings } from '@/hooks/useSettings'
+import { t } from '@/lib/i18n'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import { PlusCircle, Users, BarChart3, TrendingUp, Calendar, Clock } from 'lucide-react'
+import StatsCard from '@/components/dashboard/StatsCard'
+import styles from '@/components/dashboard/Dashboard.module.scss'
+import { 
+  BarChart3, 
+  Users, 
+  Folder, 
+  Calendar, 
+  Plus, 
+  Eye, 
+  Settings as SettingsIcon,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react'
+import Link from 'next/link'
+
+interface DashboardStats {
+  totalSessions: number
+  activeProjects: number
+  teamMembers: number
+  completedSessions: number
+}
+
+interface RecentActivity {
+  id: number
+  type: 'session_created' | 'project_updated' | 'member_joined' | 'session_completed'
+  title: string
+  description: string
+  timestamp: string
+  color: string
+}
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const { settings } = useSettings()
+  const [stats, setStats] = useState<DashboardStats>({
+    totalSessions: 0,
+    activeProjects: 0,
+    teamMembers: 0,
+    completedSessions: 0
+  })
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      const token = localStorage.getItem('token')
+      
+      // Fetch stats
+      const statsResponse = await fetch('/api/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json()
+        setStats(statsData)
+      }
+
+      // Fetch recent activity
+      const activityResponse = await fetch('/api/dashboard/activity', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (activityResponse.ok) {
+        const activityData = await activityResponse.json()
+        setRecentActivity(activityData.activities || [])
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date()
+    const activityTime = new Date(timestamp)
+    const diffInMinutes = Math.floor((now.getTime() - activityTime.getTime()) / (1000 * 60))
+    
+    if (diffInMinutes < 60) {
+      return t('minutesAgo', settings.language, { minutes: diffInMinutes })
+    } else if (diffInMinutes < 120) {
+      return t('hourAgo', settings.language, { hour: 1 })
+    } else {
+      const hours = Math.floor(diffInMinutes / 60)
+      return t('hoursAgo', settings.language, { hours })
+    }
+  }
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'session_created':
+        return <BarChart3 className={styles.activityIcon} />
+      case 'project_updated':
+        return <Folder className={styles.activityIcon} />
+      case 'member_joined':
+        return <Users className={styles.activityIcon} />
+      case 'session_completed':
+        return <CheckCircle className={styles.activityIcon} />
+      default:
+        return <Clock className={styles.activityIcon} />
+    }
+  }
+
+  // Stats cards configuration
+  const statsCards = [
+    {
+      title: t('totalSessions', settings.language),
+      value: stats.totalSessions,
+      icon: BarChart3,
+      color: 'red' as const
+    },
+    {
+      title: t('activeProjects', settings.language),
+      value: stats.activeProjects,
+      icon: Folder,
+      color: 'yellow' as const
+    },
+    {
+      title: t('teamMembers', settings.language),
+      value: stats.teamMembers,
+      icon: Users,
+      color: 'indigo' as const
+    },
+    {
+      title: t('completedSessions', settings.language),
+      value: stats.completedSessions,
+      icon: CheckCircle,
+      color: 'purple' as const
+    }
+  ]
 
   if (!user) {
     return null
@@ -15,179 +153,160 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {user.name}!
+      <div className={styles.dashboardHeader}>
+        <h1 className={styles.dashboardTitle}>
+          {t('welcomeBack', settings.language, { name: user.name })}
         </h1>
-        <p className="text-gray-600 mt-2">
-          Here's what's happening with your poker planning sessions
+        <p className={styles.dashboardSubtitle}>
+          {t('configurePreferences', settings.language)}
         </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <BarChart3 className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Sessions</p>
-              <p className="text-2xl font-bold text-gray-900">24</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active Projects</p>
-              <p className="text-2xl font-bold text-gray-900">8</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Users className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Team Members</p>
-              <p className="text-2xl font-bold text-gray-900">12</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Clock className="h-6 w-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Hours Saved</p>
-              <p className="text-2xl font-bold text-gray-900">156</p>
-            </div>
-          </div>
-        </div>
+      {/* Quick Stats */}
+      <div className={styles.statsGrid}>
+        {statsCards.map((card, index) => (
+          <StatsCard
+            key={index}
+            title={card.title}
+            value={card.value}
+            icon={card.icon}
+            color={card.color}
+            loading={loading}
+          />
+        ))}
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Quick Actions */}
-        <div className="lg:col-span-1">
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">Quick Actions</h3>
-            </div>
-            <div className="card-content space-y-3">
-              <button className="btn-primary btn-md w-full flex items-center justify-center">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create New Planning
-              </button>
-              <button className="btn-outline btn-md w-full">
-                Join Planning Session
-              </button>
-              <button className="btn-outline btn-md w-full">
-                View All Projects
-              </button>
-            </div>
-          </div>
-        </div>
-
+      <div className={styles.mainContentGrid}>
         {/* Recent Activity */}
-        <div className="lg:col-span-2">
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">Recent Activity</h3>
+        <div className={styles.activitySection}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>
+                <TrendingUp className={styles.cardTitleIcon} />
+                {t('recentActivity', settings.language)}
+              </h3>
             </div>
-            <div className="card-content">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <BarChart3 className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">New planning session created</p>
-                    <p className="text-xs text-gray-500">Project: E-commerce Platform • 2 hours ago</p>
-                  </div>
+            <div className={styles.cardContent}>
+              {loading ? (
+                <div className={styles.loadingSkeleton}>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className={styles.skeletonItem}>
+                      <div className={styles.skeletonDot}></div>
+                      <div className={styles.skeletonContent}>
+                        <div className={styles.skeletonLine}></div>
+                        <div className={styles.skeletonTime}></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              ) : recentActivity.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <Clock className={styles.emptyStateIcon} />
+                  <h3 className={styles.emptyStateTitle}>
+                    {t('noRecentActivity', settings.language)}
+                  </h3>
+                  <p className={styles.emptyStateDescription}>
+                    {t('getStarted', settings.language)}
+                  </p>
+                </div>
+              ) : (
+                <div className={styles.activityList}>
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className={styles.activityItem}>
+                      <div className={`${styles.activityDot} ${activity.color}`}></div>
+                      <div className={styles.activityContent}>
+                        <p className={styles.activityTitle}>
+                          {activity.title}
+                        </p>
+                        <p className={styles.activityTime}>
+                          {formatTimeAgo(activity.timestamp)}
+                        </p>
+                      </div>
+                      {getActivityIcon(activity.type)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <Users className="h-4 w-4 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Team member joined session</p>
-                    <p className="text-xs text-gray-500">Sarah Johnson joined "Mobile App Planning" • 4 hours ago</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <Calendar className="h-4 w-4 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Planning session completed</p>
-                    <p className="text-xs text-gray-500">"API Integration Planning" completed • 1 day ago</p>
-                  </div>
-                </div>
+        {/* Quick Actions */}
+        <div className={styles.actionsSection}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>
+                <Plus className={styles.cardTitleIcon} />
+                {t('quickActions', settings.language)}
+              </h3>
+            </div>
+            <div className={styles.cardContent}>
+              <div className={styles.actionsList}>
+                <Link
+                  href="/dashboard/create"
+                  className={styles.actionButton}
+                >
+                  <Plus className={styles.actionButtonIcon} />
+                  {t('createNewSession', settings.language)}
+                </Link>
+                
+                <Link
+                  href="/dashboard/sessions"
+                  className={styles.actionButtonOutline}
+                >
+                  <Eye className={styles.actionButtonIcon} />
+                  {t('viewSessions', settings.language)}
+                </Link>
+                
+                <Link
+                  href="/dashboard/projects"
+                  className={styles.actionButtonOutline}
+                >
+                  <Folder className={styles.actionButtonIcon} />
+                  {t('viewProjects', settings.language)}
+                </Link>
+                
+                <Link
+                  href="/dashboard/team"
+                  className={styles.actionButtonOutline}
+                >
+                  <Users className={styles.actionButtonIcon} />
+                  {t('viewTeam', settings.language)}
+                </Link>
+                
+                <Link
+                  href="/dashboard/settings"
+                  className={styles.actionButtonOutline}
+                >
+                  <SettingsIcon className={styles.actionButtonIcon} />
+                  {t('viewSettings', settings.language)}
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Upcoming Sessions */}
-      <div className="mt-8">
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Upcoming Sessions</h3>
-          </div>
-          <div className="card-content">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">Mobile App Planning</h4>
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Today</span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">Planning session for mobile app features</p>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock className="mr-1 h-3 w-3" />
-                  2:00 PM - 3:30 PM
-                </div>
-              </div>
-
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">Backend Architecture</h4>
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Tomorrow</span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">System architecture planning session</p>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock className="mr-1 h-3 w-3" />
-                  10:00 AM - 11:30 AM
-                </div>
-              </div>
-
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">UI/UX Review</h4>
-                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Friday</span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">User interface design review</p>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock className="mr-1 h-3 w-3" />
-                  1:00 PM - 2:00 PM
-                </div>
-              </div>
+      {/* Empty States */}
+      {!loading && stats.totalSessions === 0 && (
+        <div className={styles.emptyDashboard}>
+          <div className={styles.card}>
+            <div className={styles.emptyDashboardContent}>
+              <BarChart3 className={styles.emptyDashboardIcon} />
+              <h3 className={styles.emptyDashboardTitle}>
+                {t('noSessionsYet', settings.language)}
+              </h3>
+              <p className={styles.emptyDashboardDescription}>
+                {t('createFirstSession', settings.language)}
+              </p>
+              <Link href="/dashboard/create" className={styles.emptyDashboardButton}>
+                {t('getStarted', settings.language)}
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </DashboardLayout>
   )
 } 

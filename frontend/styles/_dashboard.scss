@@ -1,0 +1,277 @@
+@import 'variables';
+
+// Dashboard specific styles
+.sidebar {
+  @apply flex h-full flex-col shadow-lg;
+  background-color: var(--sidebar-bg);
+}
+
+.sidebar-header {
+  @apply flex h-16 items-center justify-between px-6 border-b;
+  border-color: var(--sidebar-border);
+}
+
+.sidebar-brand {
+  @apply flex items-center;
+}
+
+.sidebar-logo {
+  @apply h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center;
+}
+
+.sidebar-title {
+  @apply ml-3 text-lg font-semibold;
+  color: var(--foreground);
+}
+
+.sidebar-close-btn {
+  @apply lg:hidden p-2 rounded-md hover:bg-gray-100;
+  color: var(--muted-foreground);
+}
+
+.sidebar-nav {
+  @apply flex-1 space-y-1 px-3 py-4;
+}
+
+.sidebar-link {
+  @apply flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors;
+}
+
+.sidebar-link-active {
+  background-color: var(--aside-active-background);
+  color: var(--aside-active-color);
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--sidebar-active-border);
+    border-radius: 0 4px 4px 0;
+  }
+}
+
+.sidebar-link-inactive {
+  color: var(--muted-foreground);
+
+  &:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--foreground);
+  }
+}
+
+.sidebar-icon {
+  @apply mr-3 h-5 w-5 flex-shrink-0;
+}
+
+.sidebar-icon-active {
+  color: var(--aside-active-color);
+}
+
+.sidebar-icon-inactive {
+  @apply text-gray-400 group-hover:text-gray-500;
+}
+
+.sidebar-footer {
+  @apply border-t p-4;
+  border-color: var(--sidebar-border);
+}
+
+.sidebar-profile-btn {
+  @apply flex w-full items-center space-x-3 rounded-lg p-2 text-sm focus:outline-none;
+  color: var(--foreground);
+}
+
+.sidebar-avatar {
+  @apply h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center overflow-hidden;
+}
+
+.sidebar-avatar-text {
+  @apply text-white text-sm font-medium;
+}
+
+.sidebar-profile-info {
+  @apply flex-1 text-left;
+}
+
+.sidebar-profile-name {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.sidebar-profile-email {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+// Header styles
+.dashboard-header {
+  @apply sticky top-0 z-30 shadow-sm border-b;
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+.header-container {
+  @apply flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8;
+}
+
+.header-menu-btn {
+  @apply lg:hidden p-2 rounded-md hover:bg-gray-100;
+  color: var(--muted-foreground);
+}
+
+.header-search-container {
+  @apply flex-1 max-w-lg mx-4 lg:mx-8;
+}
+
+.header-search-wrapper {
+  @apply relative;
+}
+
+.header-search-icon {
+  @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
+  color: var(--muted-foreground);
+}
+
+.header-search-input {
+  @apply block w-full pl-10 pr-3 py-2 border rounded-md leading-5 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+  background-color: var(--input);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.header-actions {
+  @apply flex items-center space-x-4;
+}
+
+.header-notification-btn {
+  @apply p-2 rounded-md hover:bg-gray-100 relative;
+  color: var(--muted-foreground);
+}
+
+.header-notification-badge {
+  @apply absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center;
+}
+
+.header-profile-btn {
+  @apply flex items-center space-x-3 p-2 rounded-md focus:outline-none;
+  &:hover {
+    background-color: var(--sidebar-hover);
+  }
+}
+
+.header-avatar {
+  @apply h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center overflow-hidden;
+}
+
+.header-avatar-text {
+  @apply text-white text-sm font-medium;
+}
+
+.header-profile-info {
+  @apply hidden md:block text-left;
+}
+
+.header-profile-name {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.header-profile-email {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.header-dropdown-header {
+  @apply px-4 py-2 border-b;
+  border-color: var(--border);
+}
+
+.header-dropdown-title {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.header-dropdown-subtitle {
+  @apply text-xs;
+  color: var(--muted-foreground);
+}
+
+.header-dropdown-item {
+  // @apply dropdown-item w-full flex  items-center px-4 py-2 text-sm flex;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--foreground);
+  position: relative;
+  &:hover {
+    background-color: var(--sidebar-hover);
+  }
+}
+
+.header-dropdown-icon {
+  @apply mr-3 h-4 w-4;
+}
+
+.header-notification-item {
+  @apply px-4 py-3 cursor-pointer dropdown-item;
+
+  &.unread {
+    @apply bg-blue-50 dark:bg-blue-900/20;
+  }
+}
+
+.header-notification-content {
+  @apply flex items-start;
+}
+
+.header-notification-text {
+  @apply flex-1 min-w-0;
+}
+
+.header-notification-title {
+  @apply text-sm font-medium;
+  color: var(--foreground);
+}
+
+.header-notification-message {
+  @apply text-sm mt-1;
+  color: var(--muted-foreground);
+}
+
+.header-notification-time {
+  @apply text-xs mt-1;
+  color: var(--muted-foreground);
+}
+
+.header-notification-dot {
+  @apply ml-2 h-2 w-2 bg-blue-500 rounded-full;
+}
+
+.header-overlay {
+  @apply fixed inset-0 z-40;
+}
+
+// Navigation styles
+.nav-link {
+  @apply px-3 py-2 text-sm font-medium transition-colors;
+  color: var(--muted-foreground);
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.nav-link-active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}

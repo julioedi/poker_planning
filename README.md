@@ -14,6 +14,7 @@ A comprehensive real-time poker planning application built with Next.js, Express
 ### 👤 User Management
 - **Profile Pictures**: Upload JPG/WebP images (256x256 minimum, 5MB max)
 - **Profile Management**: Edit name, email, and password
+- **User Settings**: Skillset, color scheme, language, timezone, notifications
 - **User Roles**: Admin, Product Owner, Product Manager, User
 - **User Status**: Active/Inactive status management
 - **Super Admin**: User ID 0 cannot be modified or deleted by other admins
@@ -135,6 +136,8 @@ pokerplanning/
 - `DELETE /api/users/:id` - Delete user (Admin only)
 - `PUT /api/users/profile` - Update current user profile
 - `POST /api/users/profile/picture` - Upload profile picture
+- `GET /api/users/settings` - Get user settings
+- `PUT /api/users/settings` - Update user settings
 
 ### Projects
 - `GET /api/projects` - List all projects
@@ -200,7 +203,7 @@ pokerplanning/
 The application uses SQLite3 with the following main tables:
 
 ### Core Tables
-- `users` - User accounts, roles, and profile pictures
+- `users` - User accounts, roles, profile pictures, and settings
 - `projects` - Project information
 - `project_members` - Project membership and roles
 
@@ -224,6 +227,14 @@ The application uses SQLite3 with the following main tables:
 - **Image Preview**: Real-time image validation and preview
 - **Fallback Avatars**: User initials when no profile picture
 - **Responsive Design**: Works on all screen sizes
+
+### User Settings
+- **Skillset Management**: Add and edit your skills and expertise
+- **Color Scheme**: Light, dark, or auto theme selection
+- **Language Support**: English, Spanish, French, German
+- **Timezone Selection**: Multiple timezone options
+- **Notification Preferences**: All, important, or no notifications
+- **Real-time Updates**: Settings applied immediately
 
 ### Dashboard Protection
 - **Loading States**: Smooth loading animations

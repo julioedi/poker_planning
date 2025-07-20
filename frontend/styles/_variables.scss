@@ -1,0 +1,81 @@
+// CSS Variables for theming
+:root {
+  // Light theme variables
+  --background: #f5f5f5;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --border-primary: #e2e8f0;
+  --border-secondary: #e2e8f0;
+  --input: #ffffff;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-hover: #f8fafc;
+  --sidebar-active: #eff6ff;
+  --sidebar-active-border: #3b82f6;
+  --aside-active-color: #3b82f6;
+  --aside-active-background: #eff6ff;
+  --dropdown-bg: #ffffff;
+  --dropdown-border: #e2e8f0;
+  --dropdown-hover: #f8fafc;
+  --table-border: #e2e8f0;
+  --table-stripe: #f8fafc;
+}
+
+.dark {
+  // Dark theme variables
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #334155;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #334155;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #334155;
+  --border-primary: #334155;
+  --border-secondary: #334155;
+  --input: #1e293b;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+  --sidebar-bg: #1e293b;
+  --sidebar-border: #334155;
+  --sidebar-hover: #334155;
+  --sidebar-active: #1e40af;
+  --sidebar-active-border: #3b82f6;
+  --aside-active-color: currentColor;
+  --aside-active-background: #1e40af;
+  --dropdown-bg: #1e293b;
+  --dropdown-border: #334155;
+  --dropdown-hover: #334155;
+  --table-border: #334155;
+  --table-stripe: #1e293b;
+}
+
+// SASS Variables for easier use
+$font-family: 'Inter', system-ui, sans-serif;
+$transition-duration: 0.3s;
+$border-radius: 0.5rem;

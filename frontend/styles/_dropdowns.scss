@@ -1,0 +1,17 @@
+@import 'variables';
+
+// Dropdown components
+.dropdown-menu {
+  @apply absolute rounded-lg shadow-lg py-1 z-50;
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--dropdown-border);
+}
+
+.dropdown-item {
+  @apply block px-4 py-2 text-sm;
+  color: var(--foreground);
+  
+  &:hover {
+    background-color: var(--dropdown-hover);
+  }
+} 

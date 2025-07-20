@@ -15,7 +15,7 @@ interface ProfileFormData {
 }
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [uploadingPicture, setUploadingPicture] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -83,8 +83,8 @@ export default function ProfilePage() {
         const result = await response.json()
         toast.success('Profile picture updated successfully')
         
-        // Refresh the page to show new picture
-        window.location.reload()
+        // Update user context with new profile picture
+        updateUser({ profile_picture: result.filename })
       } catch (error: any) {
         toast.error(error.message)
       } finally {
@@ -154,10 +154,9 @@ export default function ProfilePage() {
         confirmPassword: ''
       }))
 
-      // Update local user data if needed
+      // Update user context with new data
       if (result.user) {
-        // You might want to update the user context here
-        window.location.reload() // Simple refresh for now
+        updateUser(result.user)
       }
     } catch (error: any) {
       toast.error(error.message)
@@ -173,8 +172,8 @@ export default function ProfilePage() {
   return (
     <DashboardLayout>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold ">Profile Settings</h1>
+        <p className="mt-2">
           Update your personal information and account settings
         </p>
       </div>
@@ -190,7 +189,7 @@ export default function ProfilePage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium  mb-2">
                     <User className="inline h-4 w-4 mr-2" />
                     Full Name
                   </label>
@@ -206,7 +205,7 @@ export default function ProfilePage() {
 
                 {/* Email Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium  mb-2">
                     <Mail className="inline h-4 w-4 mr-2" />
                     Email Address
                   </label>
@@ -222,10 +221,10 @@ export default function ProfilePage() {
 
                 {/* Password Change Section */}
                 <div className="border-t border-gray-200 pt-6">
-                  <h4 className="text-lg font-medium text-gray-900 mb-4">Change Password</h4>
+                  <h4 className="text-lg font-medium  mb-4">Change Password</h4>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium  mb-2">
                         <Lock className="inline h-4 w-4 mr-2" />
                         Current Password
                       </label>
@@ -238,7 +237,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium  mb-2">
                         New Password
                       </label>
                       <input
@@ -250,7 +249,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium  mb-2">
                         Confirm New Password
                       </label>
                       <input
@@ -330,22 +329,22 @@ export default function ProfilePage() {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <h4 className="text-lg font-semibold text-gray-900">{user.name}</h4>
-                <p className="text-gray-600">{user.email}</p>
-                <p className="text-xs text-gray-500 mt-2">
+                <h4 className="text-lg font-semibold ">{user.name}</h4>
+                <p className="">{user.email}</p>
+                <p className="text-xs  mt-2">
                   Click the camera icon to upload a profile picture
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-600">Role</span>
-                  <span className="text-sm font-medium text-gray-900 capitalize">
+                  <span className="text-sm ">Role</span>
+                  <span className="text-sm font-medium  capitalize">
                     {user.role?.replace('_', ' ')}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-600">Status</span>
+                  <span className="text-sm ">Status</span>
                   <span className={`text-sm font-medium px-2 py-1 rounded-full ${
                     user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                   }`}>
@@ -353,8 +352,8 @@ export default function ProfilePage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-gray-600">Member Since</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm ">Member Since</span>
+                  <span className="text-sm font-medium ">
                     {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
@@ -371,7 +370,7 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <button
                   onClick={logout}
-                  className="w-full btn-outline btn-md text-red-600 hover:bg-red-50 hover:border-red-300"
+                  className="w-full btn-outline btn-md  hover:bg-red-50 hover:border-red-300"
                 >
                   Sign Out
                 </button>

@@ -11,8 +11,9 @@ dotenv.config();
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
-const projectRoutes = require('./routes/projects');
-const pokerPlanningRoutes = require('./routes/pokerPlanning');
+const projectRoutes = require('./routes/projects/index.js');
+const pokerPlanningRoutes = require('./routes/poker-planning');
+const teamRoutes = require('./routes/team');
 
 // Import middleware
 const { authenticateToken } = require('./middleware/auth');
@@ -53,6 +54,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api/projects', authenticateToken, projectRoutes);
 app.use('/api/poker-planning', authenticateToken, pokerPlanningRoutes);
+app.use('/api/team', authenticateToken, teamRoutes);
 
 // Socket.IO setup
 setupSocketHandlers(io);
